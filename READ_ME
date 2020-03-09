@@ -1,0 +1,24 @@
+# nautilus
+composition for bass flute and neural net (2020)
+
+
+## About the piece
+On an artistic level this piece is inspired by an imaginery deep-sea journey of a nautilus mollusc, as it navigates coral reefs and deep water trenches across the oceans. The music describes this journey with the bass flute and generative sound-design highlighting the topography of the oceans and vast openess of the depths. The name 'nautilus' also works a couple of meta levels too: on the one hand the word dervies from the ancient greek for 'sailor'; here the musician is navigating around the uncharted ocean of sound that emerges through the genertive processes of this piece. On the other hand, the word originally referred to the paper nautiluses of the genus Argonauta, and also hints at Captain Nemo's submarine journey that lastes 20,000 leagues and explored new and wonderful under-sea worlds.
+
+On a technical level, this piece was created using Deep Learning processes, and in performance uses a neural net to make in-the-flow decisions about how the music is to be shaped. The compositional process started with an imporovisation by Carla on the idea of the nautilus' journey (originally the cephalopod). This improvisation then became the source material for machine learning processes and the sound-design manipulation that is heard during the performance. A neural network was trained using TensorFlow methods and a dataset of transcribed jazz improvisations. At the start of each iteration of the piece random notes from Carla's original improv are passed through this neural net that in turn outputs a notated improvisation based on the input note choices. This notation forms part of the digital score for live interpretation. Another element of the digital score is the generative sound design, which uses the audio recording of the original improvisation as its source material. 
+
+A decision was made early on to make this composition distributable through Carla's publishing network, and therefore playable by others without the need for the composer/ programmer to be present and guide the technical setup of each performance. As such, it is a closed loop composition that does not listen to the live performance. The advantage of this is that many characteristics of the original improv remain intact while still being open to new iterations through machine earning and generative processes. As such, each new performance, by each new musician will be different, but still a version of the original.
+
+Nautilus was commissioned by Carla Rees.
+Dedicated to Carla Rees
+
+
+## Setup Notes
+Once this code has been downloaded from GitHub https://github.com/craigvear/nautilus follow the setup instructions.
+You will need:
+MuseScore 3 https://musescore.org/en or Lilypond http://lilypond.org
+Python 3 https://www.python.org/downloads/
+
+## Performers Notes
+Once you have started the script the code will generate a notated score for your to interpret, this could take 10-20 seconds. This score should open up in a score editor such as MuseScore. At the same time the generative sound design will start to play. This design establishes the feel of the piece and your instrumental interpretation needs to be guided by this. The notes on the score can be played in sequence, or you can jump phrases and notes forward or backwards. Rhythms and tempo are indicitive, you are free to interpret them to make them fit into your feel of the piece.
+When you have finished playing hit the 'space bar' on your laptop and the performance will stop.
