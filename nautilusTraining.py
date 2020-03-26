@@ -1,29 +1,22 @@
-# THANK YOU https://github.com/haryoa/note_music_generator/blob/master/Music%20Generator.ipynb
+"""
+THANK YOU https://github.com/haryoa/note_music_generator/blob/master/Music%20Generator.ipynb
+All the training code was recycled from this notebook
 
+"""
 
 import tensorflow as tf
 from tensorflow.keras import backend as K
 import glob
-import random
 import pretty_midi
-import IPython
-import numpy as np
-from tqdm import tnrange, tqdm, tqdm
+from tqdm import tqdm
 from random import shuffle, seed
-import numpy as np
 from tensorflow.keras.losses import sparse_categorical_crossentropy
 from tensorflow.keras.optimizers import Nadam
-import numpy as np
 from numpy.random import choice
 import pickle
-import matplotlib.pyplot as plt
-
-import unicodedata
-import re
 import numpy as np
 import os
-import io
-import time
+
 
 class TrainModel:
 
@@ -683,94 +676,58 @@ def create_model(seq_len, unique_notes, dropout=0.3, output_emb=100, rnn_unit=12
   model = tf.keras.Model(inputs=inputs, outputs=outputs, name='generate_scores_rnn')
   return model
 
+def main():
+    list_all_midi = get_list_midi()
+    sampled_200_midi = list_all_midi[0:100]  # changed to 100
+    batch = 1
+    start_index = 0
+    note_tokenizer = NoteTokenizer()
+    seq_len = 50
+    EPOCHS = 4
+    BATCH_SONG = 16
+    BATCH_NNET_SIZE = 96
+    TOTAL_SONGS = len(sampled_200_midi)
+    FRAME_PER_SECOND = 5
 
-# def generate_from_random(unique_notes, seq_len=50):
-#     generate = np.random.randint(0, unique_notes, seq_len).tolist()
-#     return generate
-#
-#
-# def generate_from_one_note(note_tokenizer, new_notes='35'):
-#     generate = [note_tokenizer.notes_to_index['e'] for i in range(49)]
-#     generate += [note_tokenizer.notes_to_index[new_notes]]
-#     return generate
-#
-# def generate_notes(generate, model, unique_notes, max_generated=1000, seq_len=50):
-#   for i in tqdm(range(max_generated), desc='genrt'):
-#     test_input = np.array([generate])[:,i:i+seq_len]
-#     predicted_note = model.predict(test_input)
-#     random_note_pred = choice(unique_notes+1, 1, replace=False, p=predicted_note[0])
-#     generate.append(random_note_pred[0])
-#   return generate
-#
-# def write_midi_file_from_generated(generate, midi_file_name = "result.mid", start_index=49, fs=8, max_generated=1000):
-#   note_string = [note_tokenizer.index_to_notes[ind_note] for ind_note in generate]
-#   array_piano_roll = np.zeros((128,max_generated+1), dtype=np.int16)
-#   for index, note in enumerate(note_string[start_index:]):
-#     if note == 'e':
-#       pass
-#     else:
-#       splitted_note = note.split(',')
-#       for j in splitted_note:
-#         array_piano_roll[int(j),index] = 1
-#   generate_to_midi = piano_roll_to_pretty_midi(array_piano_roll, fs=fs)
-#   print("Tempo {}".format(generate_to_midi.estimate_tempo()))
-#   for note in generate_to_midi.instruments[0].notes:
-#     note.velocity = 100
-#   generate_to_midi.write(midi_file_name)
+    for i in tqdm(range(len(sampled_200_midi))):
+        dict_time_notes = generate_dict_time_notes(sampled_200_midi, batch_song=1, start_index=i, use_tqdm=False, fs=5)
+        full_notes = process_notes_in_song(dict_time_notes)
+        for note in full_notes:
+            note_tokenizer.partial_fit(list(note.values()))
 
-# Get 200 (or 100) midis file from the datasets..
+    note_tokenizer.add_new_note('e')  # Add empty notes
 
-# list_all_midi = get_list_midi()
+    unique_notes = note_tokenizer.unique_word
+    # print(unique_notes)
 
-list_all_midi = get_list_midi()
-sampled_200_midi = list_all_midi[0:100] # changed to 100
-batch = 1
-start_index = 0
-note_tokenizer = NoteTokenizer()
-seq_len = 50
-EPOCHS = 4
-BATCH_SONG = 16
-BATCH_NNET_SIZE = 96
-TOTAL_SONGS = len(sampled_200_midi)
-FRAME_PER_SECOND = 5
+    model = create_model(seq_len, unique_notes)
 
+    print(model.summary())
 
-for i in tqdm(range(len(sampled_200_midi))):
-    dict_time_notes = generate_dict_time_notes(sampled_200_midi, batch_song=1, start_index=i, use_tqdm=False, fs=5)
-    full_notes = process_notes_in_song(dict_time_notes)
-    for note in full_notes:
-        note_tokenizer.partial_fit(list(note.values()))
+    tf.keras.utils.plot_model(model, 'this_model.png', show_shapes=True)
 
-note_tokenizer.add_new_note('e') # Add empty notes
+    # TRAIN
 
-unique_notes = note_tokenizer.unique_word
-# print(unique_notes)
+    optimizer = Nadam()
 
-model = create_model(seq_len, unique_notes)
+    checkpoint = tf.train.Checkpoint(optimizer=optimizer,
+                                     model=model)
+    checkpoint_dir = '../training_checkpoints'
+    checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
+    loss_fn = sparse_categorical_crossentropy
 
-print (model.summary())
+    # TRAIN HERE (1 epoch = 1hour)
 
-tf.keras.utils.plot_model(model, 'this_model.png', show_shapes=True)
+    train_class = TrainModel(EPOCHS, note_tokenizer, sampled_200_midi, FRAME_PER_SECOND,
+                             BATCH_NNET_SIZE, BATCH_SONG, optimizer, checkpoint, loss_fn,
+                             checkpoint_prefix, TOTAL_SONGS, model)
 
-# TRAIN
+    train_class.train()
 
-optimizer = Nadam()
+    # save mpdel as h5 and the tokenizer
 
-checkpoint = tf.train.Checkpoint(optimizer=optimizer,
-                                 model=model)
-checkpoint_dir = '../training_checkpoints'
-checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
-loss_fn = sparse_categorical_crossentropy
+    model.save('data/model/epochs4-long-model_ep4.h5')
+    pickle.dump(note_tokenizer, open("data/weights/epochs4-long-tokenizer.p", "wb"))
 
-# TRAIN HERE (1 epoch = 1hour)
-
-train_class = TrainModel(EPOCHS, note_tokenizer, sampled_200_midi, FRAME_PER_SECOND,
-                  BATCH_NNET_SIZE, BATCH_SONG, optimizer, checkpoint, loss_fn,
-                  checkpoint_prefix, TOTAL_SONGS, model)
-
-train_class.train()
-
-# save mpdel as h5 and the tokenizer
-
-model.save('data/model/epochs4-long-model_ep4.h5')
-pickle.dump(note_tokenizer, open("data/weights/epochs4-long-tokenizer.p", "wb"))
+if __name__ == '__main__':
+    main()
