@@ -22,7 +22,7 @@ from pynput import keyboard
 from training.nautilusTraining import SeqSelfAttention
 
 # state all vaiables
-list_all_audio = glob.glob('training/data/audio/*.wav')
+list_all_audio = glob.glob('data/audio/*.wav')
 num = len(list_all_audio)
 print (num)
 seed_rnd = random.randrange(num)
