@@ -712,7 +712,7 @@ def main():
 
     checkpoint = tf.train.Checkpoint(optimizer=optimizer,
                                      model=model)
-    checkpoint_dir = '../../training_checkpoints'
+    checkpoint_dir = '../training_checkpoints'
     checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
     loss_fn = sparse_categorical_crossentropy
 
@@ -727,7 +727,7 @@ def main():
     # save mpdel as h5 and the tokenizer
 
     model.save('data/model/epochs4-long-model_ep4.h5')
-    pickle.dump(note_tokenizer, open("../data/epochs4-long-tokenizer.p", "wb"))
+    pickle.dump(note_tokenizer, open("data/epochs4-long-tokenizer.p", "wb"))
 
 if __name__ == '__main__':
     main()

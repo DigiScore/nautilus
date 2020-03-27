@@ -19,7 +19,7 @@ from pydub.playback import play
 from time import sleep
 from datetime import datetime
 from pynput import keyboard
-from training.nautilusTraining import SeqSelfAttention
+from nautilusTraining import SeqSelfAttention
 
 # state all vaiables
 list_all_audio = glob.glob('data/audio/*.wav')
