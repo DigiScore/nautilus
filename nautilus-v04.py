@@ -5,10 +5,8 @@ All the training code was recycled from this notebook
 """
 
 import tensorflow as tf
-from tensorflow.keras import backend as K
 import pretty_midi
 from tqdm import tqdm
-from random import shuffle, seed, randrange
 from numpy.random import choice
 import pickle
 import numpy as np
@@ -21,11 +19,10 @@ from pydub.playback import play
 from time import sleep
 from datetime import datetime
 from pynput import keyboard
-import argparse
-from nautilusTraining import SeqSelfAttention
+from training.nautilusTraining import SeqSelfAttention
 
 # state all vaiables
-list_all_audio = glob.glob('data/audio/*.wav')
+list_all_audio = glob.glob('training/data/audio/*.wav')
 num = len(list_all_audio)
 print (num)
 seed_rnd = random.randrange(num)
@@ -283,7 +280,7 @@ def write_midi_file_from_generated(generate, midi_file_name = "result.mid", star
 
 
 def carla_rnd():
-    with open('data/carlaDNA-v9.csv', newline='') as csvfile:
+    with open('training/data/carlaDNA-v9.csv', newline='') as csvfile:
         data = list(csv.reader(csvfile))
         length = len(data)
         rnd = random.randrange(length)
@@ -293,8 +290,8 @@ def carla_rnd():
 
 
 def speed_change(sound, vol):
-    # randomly generate playback speed 0.2-0.5
-    rnd_speed = random.randrange(2, 5)
+    # randomly generate playback speed 0.3-0.5
+    rnd_speed = random.randrange(3, 5)
     speed = rnd_speed / 10
     print ('change of speed = ', speed)
     print('change of gain = ', vol)
@@ -321,8 +318,8 @@ def on_press(key):
 # --------- programme starts here -----------
 if __name__ == '__main__':
     # build model from trained files
-    model = tf.keras.models.load_model('data/model/epochs4-long-model_ep4.h5', custom_objects=SeqSelfAttention.get_custom_objects())
-    note_tokenizer  = pickle.load( open( "data/weights/epochs4-long-tokenizer.p", "rb" ) )
+    model = tf.keras.models.load_model('data/epochs4-long-model_ep4.h5', custom_objects=SeqSelfAttention.get_custom_objects())
+    note_tokenizer  = pickle.load(open("data/epochs4-long-tokenizer.p", "rb"))
 
     # generate midi files
     max_generate = 100

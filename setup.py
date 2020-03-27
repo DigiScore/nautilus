@@ -1,9 +1,12 @@
 from distutils.core import setup
 
-setup(name='nautilus-v03',
+APP = ['nautilus-v04']
+DATA_FILES = ['/data/model/epochs4-long-model_ep4.h5', '/data/weights/epochs4-long-tokenizer.p']
+
+setup(name=APP,
       version='1.0',
-      py_modules=['nautilus-v03'],
+      data_files = DATA_FILES,
+      py_modules=[APP],
       author='Craig Vear',
       author_email='cvear@dmu.ac.uk',
-
       )
