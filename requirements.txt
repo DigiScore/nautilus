@@ -4,3 +4,11 @@ tqdm
 numpy
 pydub
 pynput
+pickle
+csv
+glob
+random
+datetime
+mido
+threading
+pyaudio
