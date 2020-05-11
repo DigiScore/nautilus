@@ -1,0 +1,6 @@
+tensorflow
+pretty_midi
+tqdm
+numpy
+pydub
+pynput
