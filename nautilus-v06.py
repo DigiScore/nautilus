@@ -13,11 +13,21 @@ from pydub.playback import play
 from time import sleep
 from datetime import datetime
 from pynput import keyboard
-from nautilusTraining import SeqSelfAttention
-from nautilusTraining import NoteTokenizer
+from data.nautilusTraining import SeqSelfAttention
+from data.nautilusTraining import NoteTokenizer
 from mido import MidiFile, MidiTrack
 from threading import Thread
 import pyaudio
+from music21 import stream, converter, clef, meter
+from tkinter import Tk, Canvas, PhotoImage
+
+
+print ('=============================== \n\n'
+       'Here we go ... '
+       'just have to instantiate a neural net or two '
+       'and then will get you your unique score \n\n\n '
+       '================================')
+
 
 
 """
@@ -47,7 +57,7 @@ class ScoreDev():
         for trx in in_file.tracks:
             for msg in trx:
                 if msg.type == 'note_on' or 'note_off' and not msg.is_meta:
-                    new_time = msg.time * 5
+                    new_time = msg.time * 4 # chenged to 4 from 10 for lilypond
                     new_msg = msg.copy(time=new_time)
                     track.append(new_msg)
                 else:
@@ -62,8 +72,8 @@ class ScoreDev():
         # create the midi file for visual notation
         generate = self.generate_notes(generate, model, self.unique_notes, self.max_generate, self.seq_len)
         now = datetime.now()
-        current_time = now.strftime("%d-%m-%Y-%H-%M-%S")
-        midi_file_name = "data/output/nautilus" + current_time + ".mid"
+        self.current_time = now.strftime("%d-%m-%Y-%H-%M-%S")
+        midi_file_name = "data/output/nautilus" + self.current_time + ".mid"
         print(midi_file_name)
         self.write_midi_file_from_generated(generate, midi_file_name, start_index=self.seq_len - 1, fs=8, max_generated=self.max_generate)
         return midi_file_name
@@ -71,14 +81,34 @@ class ScoreDev():
     def open_score(self, midi_file_to_open):
         # open midifile after manipulating duration data
         self.delta_change(midi_file_to_open)
-        # open midi file in Musescore here
-        openmidi = str('open ' + midi_file_to_open)
-        print(openmidi)
-        os.system(openmidi)
+        print("\n\n\nNow I'm going to print you the score\n\n\n")
+        # convert to lily.png
+        note_list = []
+        parts_stream = stream.Stream()
+        parts_stream.insert(0, clef.TrebleClef())
+        # parts_stream.insert(0, meter.TimeSignature('8/4'))
+        score_in = converter.parseFile(midi_file_to_open)  # converts to a music21.stream.score
+
+        # seperates out notes from rest of stream and makes notes_list for shuffle
+        for n in score_in.recurse().notes:
+
+            # print (f'Note: {n.pitch.name}, {n.pitch.octave}. {n.duration.quarterLength}')
+            if n.duration.quarterLength != 0:  # if note length is not 0 then add to list of notes
+                note_list.append(n)
+
+        for i, nt in enumerate(note_list):
+            note_pop = note_list[i]
+            parts_stream.append(note_pop)
+
+        png_fp = 'data/output/png-' + self.current_time
+        parts_stream.write('lily.png', fp=png_fp)
+
+        return str(png_fp+'.png')
+
 
     # randomly generates the seed note from Carla's list of notes, to seed the NN process
     def carla_rnd(self):
-        with open('training/data/carlaDNA-v9.csv', newline='') as csvfile:
+        with open('data/carlaDNA-v9.csv', newline='') as csvfile:
             data = list(csv.reader(csvfile))
             length = len(data)
             rnd = random.randrange(length)
@@ -240,7 +270,7 @@ class MissionControl():
 
     def on_press(self, key):
         if key == keyboard.Key.space:
-            print('end pressed')
+            print('end pressed. Just going to finish this sound :)')
             self.terminate()
             return False
 
@@ -275,6 +305,23 @@ class MissionControl():
                     audio_bot.audio_comp()
             sleep(0.1) # slowing things down to a human level
 
+    def show_score(self):
+        # make windows
+        window1 = Tk()
+
+        # create canvass
+        canvas_one = Canvas(window1, width=1200, height=800, bg='white')
+        canvas_one.pack()
+
+        # create image from PNG and put in position on canvas
+        score1 = PhotoImage(file=score_to_show)
+        # score1_large = score1.zoom(2, 2)  # zoom 2x
+        mypart1 = canvas_one.create_image(600, 400, image=score1)  # put in middle of canvas
+
+        window1.update()
+
+        if not self.running:
+            window1.destroy()
 
 """
 ------------------------------------------------
@@ -291,7 +338,7 @@ if __name__ == '__main__':
     score = ScoreDev() # initiates a score bot to create the unique score
     carla_start_note = score.carla_rnd() # generates a start note from Carla's improv transcipt
     file_to_open = score.generatng_score(carla_start_note) # asks score-bot to generate a score for performance
-    score.open_score(file_to_open) # score bot asks MuseScore or sim to open the generated .Mid file
+    score_to_show = score.open_score(file_to_open) # score bot asks MuseScore or sim to open the generated .Mid file
 
     # start threading. This is where the program starts
     mc = MissionControl() # initiates a bot to control the threading (multiple operations) in this program
@@ -299,13 +346,16 @@ if __name__ == '__main__':
     t1 = Thread(target=mc.keyboard) # listens to the keyboard for exit/ stop key (= space)
     t2 = Thread(target=mc.snd_listen, daemon=True) # starts the process of listening to the computer mic
     t3 = Thread(target=mc.audio_wrangler, daemon=True) # starts the process of randomly generating the sonic accompniment
+    t4 = Thread(target=mc.show_score, daemon=True)
 
     # here we go ... start your engines
     t1.start()
     t2.start()
     t3.start()
+    t4.start()
 
     # when finished join all threads and close mission control
     t1.join()
     t2.join()
     t3.join()
+    t4.join()

@@ -1,0 +1,102 @@
+\version "2.20" 
+\include "lilypond-book-preamble.ly"
+    
+color = #(define-music-function (parser location color) (string?) #{
+        \once \override NoteHead #'color = #(x11-color color)
+        \once \override Stem #'color = #(x11-color color)
+        \once \override Rest #'color = #(x11-color color)
+        \once \override Beam #'color = #(x11-color color)
+     #})
+    
+\header { } 
+\score  { 
+ \new Voice { \new Voice { \clef "treble" 
+                cis 4  
+                f 4  
+                g 4  
+                c' 4  
+                d' 2  
+                bes 4  
+                c' 2  ~  
+                c' 8.  
+                a 4  
+                gis 4  
+                f 4  
+                c' 4  
+                ees' 4  
+                d' 4  
+                cis' 4  
+                c' 4  
+                g' 2  
+                f' 4  
+                bes' 4  
+                ees' 4  
+                f' 4  
+                cis' 4  
+                ees' 4  
+                f' 2  
+                d' 4  
+                f' 4  
+                g' 4  
+                f' 2  ~  
+                f' 8.  
+                c' 2  
+                bes 4  
+                cis' 4  
+                fis 4  
+                d' 4  
+                cis' 4  
+                fis' 4  
+                a' 2  
+                e' 2  
+                b 4  
+                cis' 2  
+                ees' 4  
+                g' 2  
+                b' 4  
+                gis' 2..  
+                gis 4  
+                ees 2  
+                gis 4  
+                f 4  
+                gis 2  ~  
+                gis 8.  
+                bes' 4  
+                a' 4  
+                f' 4  
+                ees' 4  
+                bes 2  
+                f' 2  
+                c' 2  
+                f' 2  
+                bes 4  
+                c' 4  
+                gis 4  
+                c' 4  
+                g' 4  
+                f' 2  
+                cis' 2  
+                bes 2  
+                cis' 4  
+                g 4  
+                ees' 4  
+                gis 4  
+                ees' 4  
+                g' 2  
+                ees' 4  
+                 } 
+               
+ 
+           } 
+         
+ 
+  } 
+ 
+\paper { }
+\layout {
+  \context {
+    \RemoveEmptyStaffContext
+    \override VerticalAxisGroup #'remove-first = ##t
+  }
+ }
+ 

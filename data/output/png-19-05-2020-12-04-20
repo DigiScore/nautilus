@@ -1,0 +1,85 @@
+\version "2.20" 
+\include "lilypond-book-preamble.ly"
+    
+color = #(define-music-function (parser location color) (string?) #{
+        \once \override NoteHead #'color = #(x11-color color)
+        \once \override Stem #'color = #(x11-color color)
+        \once \override Rest #'color = #(x11-color color)
+        \once \override Beam #'color = #(x11-color color)
+     #})
+    
+\header { } 
+\score  { 
+ \new Voice { \new Voice { \clef "treble" 
+                ees 2  
+                c' 4  
+                ees' 4  
+                f' 4  
+                c' 2  
+                ees' 4  
+                gis 2  
+                cis'' 2  
+                gis' 4  
+                f' 4  
+                ees' 4  
+                f' 2  
+                d' 4  
+                gis' 2  
+                f' 2  
+                g' 2  
+                f' 2  
+                ees' 2  
+                c' 2  
+                g' 2  ~  
+                g' 8.  
+                fis' 4  
+                g' 1  ~  
+                g' 8.  
+                f' 2  
+                d' 2  
+                g' 4  
+                f' 2  
+                e' 4  
+                fis' 4  
+                f' 4  
+                g' 4  
+                f' 4  
+                g' 4  
+                a' 2..  
+                bes' 4  
+                fis' 2  
+                bes' 1  ~  
+                bes' 8.  
+                g' 2  ~  
+                g' 8.  
+                f' 4  
+                ees' 4  
+                f' 4  
+                bes 2  
+                bes' 2  
+                g' 4  
+                ees' 4  
+                f' 4  
+                g' 4  
+                f' 4  
+                d' 4  
+                bes 4  
+                ees 2  
+                gis 2  
+                c' 2  
+                 } 
+               
+ 
+           } 
+         
+ 
+  } 
+ 
+\paper { }
+\layout {
+  \context {
+    \RemoveEmptyStaffContext
+    \override VerticalAxisGroup #'remove-first = ##t
+  }
+ }
+ 
