@@ -1,3 +1,0 @@
-@image{new_image-1}
-@image{new_image-2}
-@c eof
