@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import tensorflow as tf
 import pretty_midi
 from tqdm import tqdm
@@ -50,19 +52,15 @@ class ScoreDev():
 
     # expand durations on generated score and open as LilyPond png
     def delta_change(self, midi_file_name):
-        in_file = MidiFile(midi_file_name)
-        outfile = MidiFile()
-        track = MidiTrack()
-        outfile.tracks.append(track)
-        for trx in in_file.tracks:
-            for msg in trx:
-                if msg.type == 'note_on' or 'note_off' and not msg.is_meta:
-                    new_time = msg.time * 4 # chenged to 4 from 10 for lilypond
-                    new_msg = msg.copy(time=new_time)
-                    track.append(new_msg)
-                else:
-                    track.append(msg)
-        outfile.save(midi_file_name) # will save it as the same file
+        delta_factor = 4
+        original_in = converter.parseFile(midi_file_name) # original primer
+        output_midi = stream.Stream() # new stream
+        new_part = original_in.augmentOrDiminish(delta_factor) # augments note length to factor of delta_factor
+        output_midi.insert(0, new_part)
+        print('output_midi.show')
+        output_midi.show('text')
+        output_midi.write('midi', fp=midi_file_name)
+        print(f'saving bit = {midi_file_name}')
 
     def generatng_score(self, carla_note):
         #  generation from a single Carla DNA note
