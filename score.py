@@ -17,6 +17,8 @@ from music21 import stream, converter, clef, meter
 from data.nautilusTraining import SeqSelfAttention
 from data.nautilusTraining import NoteTokenizer
 
+from renderScore import ImageGen
+
 class ScoreDev():
     """
     THANK YOU https://github.com/haryoa/note_music_generator/blob/master/Music%20Generator.ipynb
@@ -35,6 +37,7 @@ class ScoreDev():
         self.max_generate = 100
         self.unique_notes = self.note_tokenizer.unique_word
         self.seq_len = 50
+        self.brown_score = ImageGen()
 
     # expand durations on generated score and open as LilyPond png
     def delta_change(self, midi_file_name):
@@ -52,9 +55,11 @@ class ScoreDev():
         #  generation from a single Carla DNA note
         starting_note = "".join(carla_note)
         generate = self.generate_from_one_note(self.note_tokenizer, starting_note)
-
+        print('generate 1 = ', generate)
         # create the midi file for visual notation
         generate = self.generate_notes(generate, self.model, self.unique_notes, self.max_generate, self.seq_len)
+        print('generate 2 = ', generate)
+
         now = datetime.now()
         self.current_time = now.strftime("%d-%m-%Y-%H-%M-%S")
         midi_file_name = "data/output/nautilus" + self.current_time + ".mid"
@@ -76,16 +81,20 @@ class ScoreDev():
         # seperates out notes from rest of stream and makes notes_list for shuffle
         for n in score_in.recurse().notes:
 
-            # print (f'Note: {n.pitch.name}, {n.pitch.octave}. {n.duration.quarterLength}')
             if n.duration.quarterLength != 0:  # if note length is not 0 then add to list of notes
-                note_list.append(n)
+                print(f'Note: {n.pitch.name}, {n.pitch.octave}, {n.duration.quarterLength}')
+                # note_list.append(n)
+                # todo - print each event as a brown png here
+                note_dict = {n.pitch.name, n.pitch.octave, n.duration.quarterLength}
+                # make dict out of
+                self.brown_score.make_image(note_dict)
 
-        for i, nt in enumerate(note_list):
-            note_pop = note_list[i]
-            parts_stream.append(note_pop)
+        # for i, nt in enumerate(note_list):
+        #     note_pop = note_list[i]
+        #     parts_stream.append(note_pop)
 
-        png_fp = 'data/output/png-' + self.current_time
-        parts_stream.write('lily.png', fp=png_fp)
+        # png_fp = 'data/output/png-' + self.current_time
+        # parts_stream.write('lily.png', fp=png_fp)
 
         return str(png_fp+'.png')
 
@@ -97,7 +106,7 @@ class ScoreDev():
             length = len(data)
             rnd = random.randrange(length)
             starting_note = data[rnd]
-            print(starting_note)
+            print('seed note == ', starting_note)
             return starting_note
 
     # define all functions
@@ -147,7 +156,7 @@ class ScoreDev():
         return generate
 
     def generate_notes(self, generate, model, unique_notes, max_generated=1000, seq_len=50):
-        for i in tqdm(range(max_generated), desc='genrt'):
+        for i in tqdm(range(max_generated), desc='generating'):
             test_input = np.array([generate])[:,i:i+seq_len]
             predicted_note = model.predict(test_input)
             random_note_pred = choice(unique_notes+1, 1, replace=False, p=predicted_note[0])
