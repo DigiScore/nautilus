@@ -102,9 +102,9 @@ class Pitch:
         else:
             self._accidental_type = None
         if not ticks:
-            self._octave = 3
+            self._octave = 4
         else:
-            self._octave = 3 + (len(ticks) * (-1 if ticks[0] == ',' else 1))
+            self._octave = 4 + (len(ticks) * (-1 if ticks[0] == ',' else 1))
         self._pitch = value
 
     @property

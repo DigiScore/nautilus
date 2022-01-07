@@ -1,16 +1,15 @@
 # # import python modules
-# import os
-# from random import randrange
-# from time import time
+import os
+from time import time
 from operator import itemgetter
-#
+
 # # import project modules
-# from notes import Notes
 from brown.common import *
 
 
 class ImageGen:
     def __init__(self):
+        print('setting up')
         brown.setup()
         self.staff_unit = 10
         self.first_note_offset = self.staff_unit / 2
@@ -23,7 +22,7 @@ class ImageGen:
                                              "octave",
                                              "duration")(note_dict)
 
-
+        # make flow env for nots
         manuscript_width = (duration + 1) * self.staff_unit + self.first_note_offset
 
         # create coordinate space container
@@ -36,25 +35,37 @@ class ImageGen:
         # populate it with music furniture
         Clef(staff, Mm(0), 'treble')
 
-        # get current chord from harmony_dict
-        text = Text((Mm(3), staff.unit(-2)), chord)
+        # parse music21 details to brown notation
+        # e.g. Music21 = G#, octave 5 - brown = gs'
 
-        note_list = self.notes.which_note(harmony_dict, number_of_notes)
-        # print('note list = ', note_list)
+        # find if # or b
+        if len(pitch) > 1:
+            if pitch[-1] == "#":
+                accidental = "s"
+            else:
+                accidental = "f"
+            note = pitch[0].lower() + accidental
 
-        for n, note in enumerate(note_list):
+        else:
+            note = pitch[0].lower()
 
-            # use the 2nd part of note alphabet tuple
-            printed_note = note[1] + "'"
+        # calc octave (4 = lowest!!)
+        if octave > 4:
+            ticks = octave - 4
+            for t in range(ticks):
+                note += "'"
 
-            # print(f'printed note  ===== {printed_note}')
-            Chordrest(Mm(self.first_note_offset + ((n + 1) * self.staff_unit)), staff, [printed_note], Beat(1, 4))
+        print(note)
 
-        # save as a png render
-        image_path = os.path.join(os.path.dirname(__file__), 'images',
-                                  f'{time()}.png')
+        print(f'printed note  ===== {note}')
+        Chordrest(Mm(self.first_note_offset + self.staff_unit), staff, [note], Beat(int(duration), 4))
 
-        # todo: rendered image is offset!!!
+        # now = datetime.now()
+        # time = now.strftime("%d-%m-%Y-%H-%M-%S")
+        # # save as a png render
+        image_path = os.path.join(os.path.dirname(__file__), 'data/images',
+                                  f'nautilus-{time()}.png')
+
         brown.render_image((Mm(0), Mm(0), Mm(manuscript_width * 2), Mm(75)), image_path,
                            dpi=200,
                            bg_color=Color(0, 120, 185, 0),
@@ -63,8 +74,12 @@ class ImageGen:
         # brown.show()
 
         # reset the notation renderer
-        text.remove()
         staff.remove()
         flow.remove()
 
-        return image_path
+        # return image_path
+
+if __name__ == "__main__":
+    test_dict = {"pitch": "G", "octave": 7, "duration": 14}
+    test = ImageGen()
+    test.make_image(test_dict)

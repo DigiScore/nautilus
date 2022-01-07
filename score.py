@@ -38,18 +38,19 @@ class ScoreDev():
         self.unique_notes = self.note_tokenizer.unique_word
         self.seq_len = 50
         self.brown_score = ImageGen()
+        self.delta_change = 4
 
-    # expand durations on generated score and open as LilyPond png
-    def delta_change(self, midi_file_name):
-        delta_factor = 4
-        original_in = converter.parseFile(midi_file_name) # original primer
-        output_midi = stream.Stream() # new stream
-        new_part = original_in.augmentOrDiminish(delta_factor) # augments note length to factor of delta_factor
-        output_midi.insert(0, new_part)
-        print('output_midi.show')
-        output_midi.show('text')
-        output_midi.write('midi', fp=midi_file_name)
-        print(f'saving bit = {midi_file_name}')
+    # # expand durations on generated score and open as LilyPond png
+    # def delta_change(self, midi_file_name):
+    #     self.delta_factor = 4
+    #     original_in = converter.parseFile(midi_file_name) # original primer
+    #     output_midi = stream.Stream() # new stream
+    #     new_part = original_in.augmentOrDiminish(delta_factor) # augments note length to factor of delta_factor
+    #     output_midi.insert(0, new_part)
+    #     print('output_midi.show')
+    #     output_midi.show('text')
+    #     output_midi.write('midi', fp=midi_file_name)
+    #     print(f'saving bit = {midi_file_name}')
 
     def generatng_score(self, carla_note):
         #  generation from a single Carla DNA note
@@ -69,8 +70,8 @@ class ScoreDev():
 
     def open_score(self, midi_file_to_open):
         # open midifile after manipulating duration data
-        self.delta_change(midi_file_to_open)
-        print("\n\n\nNow I'm going to print you the score\n\n\n")
+        # self.delta_change(midi_file_to_open)
+        # print("\n\n\nNow I'm going to print you the score\n\n\n")
         # convert to lily.png
         note_list = []
         parts_stream = stream.Stream()
@@ -81,12 +82,16 @@ class ScoreDev():
         # seperates out notes from rest of stream and makes notes_list for shuffle
         for n in score_in.recurse().notes:
 
-            if n.duration.quarterLength != 0:  # if note length is not 0 then add to list of notes
-                print(f'Note: {n.pitch.name}, {n.pitch.octave}, {n.duration.quarterLength}')
+            # if note length is not 0 then make longer and print out as individual png
+            if n.duration.quarterLength != 0:
+                new_duration = n.duration.quarterLength * self.delta_change
+                print(f'Note: {n.pitch.name}, {n.pitch.octave}, {new_duration}')
                 # note_list.append(n)
-                # todo - print each event as a brown png here
-                note_dict = {n.pitch.name, n.pitch.octave, n.duration.quarterLength}
-                # make dict out of
+
+                # make dict and send for rendering
+                note_dict = {"pitch": n.pitch.name,
+                             "octave": n.pitch.octave,
+                             "duration": n.duration.quarterLength}
                 self.brown_score.make_image(note_dict)
 
         # for i, nt in enumerate(note_list):
@@ -96,7 +101,7 @@ class ScoreDev():
         # png_fp = 'data/output/png-' + self.current_time
         # parts_stream.write('lily.png', fp=png_fp)
 
-        return str(png_fp+'.png')
+        # return str(png_fp+'.png')
 
 
     # randomly generates the seed note from Carla's list of notes, to seed the NN process
