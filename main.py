@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 import csv
 import glob
+from time import sleep
 import random
 import os
 from pydub import AudioSegment
@@ -39,6 +40,8 @@ class MissionControl():
         # carla_start_note = score.carla_rnd()  # generates a start note from Carla's improv transcipt
         # file_to_open = score.generatng_score(carla_start_note)  # asks score-bot to generate a score for performance
         # open_score = score.open_score(file_to_open)  # score bot  or sim to open the generated .Mid file
+
+        self.images = glob.glob('data/images/*.png')
 
     def terminate(self):
         self.running = False
@@ -88,23 +91,26 @@ class MissionControl():
                     audio_bot.audio_comp()
             sleep(0.1) # slowing things down to a human level
 
-    # def show_score(self):
-    #     # make windows
-    #     window1 = Tk()
-    #
-    #     # create canvass
-    #     canvas_one = Canvas(window1, width=1024, height=600, bg='white')
-    #     canvas_one.pack()
-    #
-    #     # create image from PNG and put in position on canvas
-    #     score1 = PhotoImage(file=score_to_show)
-    #     # score1_large = score1.zoom(2, 2)  # zoom 2x
-    #     mypart1 = canvas_one.create_image(512, 300, image=score1)  # put in middle of canvas
-    #
-    #     window1.update()
-    #
-    #     if not self.running:
-    #         window1.destroy()
+    def show_score(self):
+        # make windows
+        window1 = Tk()
+
+        # create canvass
+        canvas_one = Canvas(window1, width=1024, height=600, bg='white')
+        canvas_one.pack()
+
+        # create image from each PNG and put in position on canvas
+        for img in self.images:
+            score = PhotoImage(file=img)
+        # score1_large = score1.zoom(2, 2)  # zoom 2x
+            mypart1 = canvas_one.create_image(512, 300, image=score)  # put in middle of canvas
+
+            window1.update()
+
+            sleep(10)
+
+        if not self.running:
+            window1.destroy()
 
 """
 ------------------------------------------------
@@ -124,23 +130,23 @@ if __name__ == '__main__':
     # file_to_open = score.generatng_score(carla_start_note) # asks score-bot to generate a score for performance
     # open_score = score.open_score(file_to_open) # score bot  or sim to open the generated .Mid file
 
-    # todo replace with futures?
+    # todo  replace with TK in control
     # start threading. This is where the program starts
     mc = MissionControl() # initiates a bot to control the threading (multiple operations) in this program
 
     # t1 = Thread(target=mc.keyboard) # listens to the keyboard for exit/ stop key (= space)
     t2 = Thread(target=mc.snd_listen, daemon=True) # starts the process of listening to the computer mic
     t3 = Thread(target=mc.audio_wrangler, daemon=True) # starts the process of randomly generating the sonic accompniment
-    # t4 = Thread(target=mc.show_score, daemon=True)
+    t4 = Thread(target=mc.show_score, daemon=True)
 
     # here we go ... start your engines
     # t1.start()
     t2.start()
     t3.start()
-    # t4.start()
+    t4.start()
 
     # when finished join all threads and close mission control
     # t1.join()
     t2.join()
     t3.join()
-    # t4.join()
+    t4.join()

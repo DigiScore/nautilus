@@ -22,8 +22,8 @@ class ImageGen:
                                              "octave",
                                              "duration")(note_dict)
 
-        # make flow env for nots
-        manuscript_width = self.staff_unit + self.first_note_offset
+        # make flow env for notes. gap + offset on left + gap right
+        manuscript_width = self.staff_unit + self.first_note_offset + self.staff_unit
 
         # create coordinate space container
         flow = Flowable((Mm(0), Mm(0)), Mm(manuscript_width), Mm(30))
