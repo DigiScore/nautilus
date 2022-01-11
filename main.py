@@ -14,7 +14,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 from time import sleep
 from datetime import datetime
-from pynput import keyboard
+# from pynput import keyboard
 from data.nautilusTraining import SeqSelfAttention
 from data.nautilusTraining import NoteTokenizer
 from mido import MidiFile, MidiTrack
@@ -27,19 +27,6 @@ from tkinter import Tk, Canvas, PhotoImage
 from score import ScoreDev
 from audio import AudioBot
 
-print ('=============================== \n\n'
-       'Here we go ... '
-       'just have to instantiate a neural net or two '
-       'and then will get you your unique score \n\n\n '
-       '================================')
-
-
-
-"""
---------------------------
------mission control------
---------------------------
-"""
 class MissionControl():
     peak = 0
 
@@ -47,22 +34,28 @@ class MissionControl():
         print ('Mission control is online!')
         self.running = True
 
+        # then we generate the score, save it to disk as .mid, then open it in MuseScore or sim.
+        score = ScoreDev()  # initiates a score bot to create the unique score
+        # carla_start_note = score.carla_rnd()  # generates a start note from Carla's improv transcipt
+        # file_to_open = score.generatng_score(carla_start_note)  # asks score-bot to generate a score for performance
+        # open_score = score.open_score(file_to_open)  # score bot  or sim to open the generated .Mid file
+
     def terminate(self):
         self.running = False
 
-    def keyboard(self):
-        """listens out for keyboard control - SPACE bar to end composition"""
-        while self.running:
-            with keyboard.Listener(on_press=self.on_press) as listener:
-                # break if keyboard is pressed for various reasons SPACE = ends prog
-                listener.join()
-            break
+    # def keyboard(self):
+    #     """listens out for keyboard control - SPACE bar to end composition"""
+    #     while self.running:
+    #         with keyboard.Listener(on_press=self.on_press) as listener:
+    #             # break if keyboard is pressed for various reasons SPACE = ends prog
+    #             listener.join()
+    #         break
 
-    def on_press(self, key):
-        if key == keyboard.Key.space:
-            print('end pressed. Just going to finish this sound :)')
-            self.terminate()
-            return False
+    # def on_press(self, key):
+    #     if key == keyboard.Key.space:
+    #         print('end pressed. Just going to finish this sound :)')
+    #         self.terminate()
+    #         return False
 
     def snd_listen(self):
         CHUNK = 2 ** 11
@@ -95,23 +88,23 @@ class MissionControl():
                     audio_bot.audio_comp()
             sleep(0.1) # slowing things down to a human level
 
-    def show_score(self):
-        # make windows
-        window1 = Tk()
-
-        # create canvass
-        canvas_one = Canvas(window1, width=1024, height=600, bg='white')
-        canvas_one.pack()
-
-        # create image from PNG and put in position on canvas
-        score1 = PhotoImage(file=score_to_show)
-        # score1_large = score1.zoom(2, 2)  # zoom 2x
-        mypart1 = canvas_one.create_image(512, 300, image=score1)  # put in middle of canvas
-
-        window1.update()
-
-        if not self.running:
-            window1.destroy()
+    # def show_score(self):
+    #     # make windows
+    #     window1 = Tk()
+    #
+    #     # create canvass
+    #     canvas_one = Canvas(window1, width=1024, height=600, bg='white')
+    #     canvas_one.pack()
+    #
+    #     # create image from PNG and put in position on canvas
+    #     score1 = PhotoImage(file=score_to_show)
+    #     # score1_large = score1.zoom(2, 2)  # zoom 2x
+    #     mypart1 = canvas_one.create_image(512, 300, image=score1)  # put in middle of canvas
+    #
+    #     window1.update()
+    #
+    #     if not self.running:
+    #         window1.destroy()
 
 """
 ------------------------------------------------
@@ -125,29 +118,29 @@ if __name__ == '__main__':
     # note_tokenizer = pickle.load(open("data/epochs4-long-tokenizer.p", "rb"))
 
 
-    #then we generate the score, save it to disk as .mid, then open it in MuseScore or sim.
-    score = ScoreDev() # initiates a score bot to create the unique score
-    carla_start_note = score.carla_rnd() # generates a start note from Carla's improv transcipt
-    file_to_open = score.generatng_score(carla_start_note) # asks score-bot to generate a score for performance
-    score_to_show = score.open_score(file_to_open) # score bot asks MuseScore or sim to open the generated .Mid file
+    # #then we generate the score, save it to disk as .mid, then open it in MuseScore or sim.
+    # score = ScoreDev() # initiates a score bot to create the unique score
+    # carla_start_note = score.carla_rnd() # generates a start note from Carla's improv transcipt
+    # file_to_open = score.generatng_score(carla_start_note) # asks score-bot to generate a score for performance
+    # open_score = score.open_score(file_to_open) # score bot  or sim to open the generated .Mid file
 
     # todo replace with futures?
     # start threading. This is where the program starts
     mc = MissionControl() # initiates a bot to control the threading (multiple operations) in this program
 
-    t1 = Thread(target=mc.keyboard) # listens to the keyboard for exit/ stop key (= space)
+    # t1 = Thread(target=mc.keyboard) # listens to the keyboard for exit/ stop key (= space)
     t2 = Thread(target=mc.snd_listen, daemon=True) # starts the process of listening to the computer mic
     t3 = Thread(target=mc.audio_wrangler, daemon=True) # starts the process of randomly generating the sonic accompniment
-    t4 = Thread(target=mc.show_score, daemon=True)
+    # t4 = Thread(target=mc.show_score, daemon=True)
 
     # here we go ... start your engines
-    t1.start()
+    # t1.start()
     t2.start()
     t3.start()
-    t4.start()
+    # t4.start()
 
     # when finished join all threads and close mission control
-    t1.join()
+    # t1.join()
     t2.join()
     t3.join()
-    t4.join()
+    # t4.join()

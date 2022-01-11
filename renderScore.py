@@ -12,7 +12,7 @@ class ImageGen:
         print('setting up')
         brown.setup()
         self.staff_unit = 10
-        self.first_note_offset = self.staff_unit / 2
+        self.first_note_offset = 2
 
     def make_image(self, note_dict):
         """generate a random seq of notes on a staff
@@ -23,7 +23,7 @@ class ImageGen:
                                              "duration")(note_dict)
 
         # make flow env for nots
-        manuscript_width = (duration + 1) * self.staff_unit + self.first_note_offset
+        manuscript_width = self.staff_unit + self.first_note_offset
 
         # create coordinate space container
         flow = Flowable((Mm(0), Mm(0)), Mm(manuscript_width), Mm(30))
@@ -55,7 +55,10 @@ class ImageGen:
             for t in range(ticks):
                 note += "'"
 
-        print(note)
+        if duration > 8:
+            duration = 8
+        else:
+            int(duration)
 
         print(f'printed note  ===== {note}')
         Chordrest(Mm(self.first_note_offset + self.staff_unit), staff, [note], Beat(int(duration), 4))
@@ -66,10 +69,13 @@ class ImageGen:
         image_path = os.path.join(os.path.dirname(__file__), 'data/images',
                                   f'nautilus-{time()}.png')
 
-        brown.render_image((Mm(0), Mm(0), Mm(manuscript_width * 2), Mm(75)), image_path,
+        try:
+            brown.render_image((Mm(0), Mm(0), Mm(75), Mm(75)), image_path,
                            dpi=200,
                            bg_color=Color(0, 120, 185, 0),
                            autocrop=True)
+        except:
+            print('print error')
 
         # brown.show()
 

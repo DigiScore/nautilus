@@ -38,7 +38,13 @@ class ScoreDev():
         self.unique_notes = self.note_tokenizer.unique_word
         self.seq_len = 50
         self.brown_score = ImageGen()
-        self.delta_change = 4
+        self.delta_change = 2
+
+        # generate individual notations for piece
+        carla_start_note = self.carla_rnd()  # generates a start note from Carla's improv transcipt
+        file_to_open = self.generatng_score(carla_start_note)
+        self.open_score(file_to_open)
+
 
     # # expand durations on generated score and open as LilyPond png
     # def delta_change(self, midi_file_name):
