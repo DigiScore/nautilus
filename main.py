@@ -29,13 +29,17 @@ class MainApplication(tk.Frame):
         canvas_one = tk.Canvas(self.window, width=1024, height=600, bg='white')
         canvas_one.pack()
 
-        def update_gui(self):
-            # print("-------- updating gui")
-            self.update()
-            self.gui_thread = threading.Timer(0.1, self.update_gui)
-            self.gui_thread.start()
+        # kickstart thread
+        self.gui_thread = None
+        self.update_gui()
+
+    def update_gui(self):
+        # print("-------- updating gui")
+        self.window.update()
+        self.gui_thread = threading.Timer(0.1, self.update_gui)
+        self.gui_thread.start()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
     MainApplication(root).pack(side="top", fill="both", expand=True)
-    root.mainloop()
