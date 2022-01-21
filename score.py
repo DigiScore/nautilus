@@ -30,8 +30,9 @@ class ScoreDev():
         # first we need to build model from trained files
         self.model = tf.keras.models.load_model('data/epochs4-long-model_ep4.h5',
                                            custom_objects=SeqSelfAttention.get_custom_objects())
-        self.note_tokenizer = pickle.load(open("data/epochs4-long-tokenizer.p", "rb"))
 
+        with open("data/epochs4-long-tokenizer.p", "rb") as t:
+            self.note_tokenizer = pickle.load(t)
 
         # then generate midi files
         self.max_generate = 100
