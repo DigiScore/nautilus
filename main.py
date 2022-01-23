@@ -7,16 +7,21 @@ from random import randrange
 import atexit
 from threading import Thread
 from queue import Queue
+import sys
+
+from PySide2 import QtCore
+from PySide2.QtCore import Slot
+from PySide2.QtGui import QPainter, Qt, QPen, QColor, QImage
+from PySide2.QtWidgets import (QApplication, QWidget)
 
 # import project modules
 from score import ScoreDev
 from audioEngine import Audio_engine
 
 
-class MainApplication(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.window = parent
+class MainApplication(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
         self.running = True
         self.UPDATE_RATE = 0.1
 
@@ -30,8 +35,8 @@ class MainApplication(tk.Frame):
         audiobot = Audio_engine()
 
         # create canvass
-        self.canvas_one = tk.Canvas(self.window, width=1024, height=600, bg='white')
-        self.canvas_one.pack()
+        # self.canvas_one = tk.Canvas(self.window, width=1024, height=600, bg='white')
+        # self.canvas_one.pack()
 
         # get first image
         self.time_on_screen = time()
@@ -155,5 +160,18 @@ class NoteTokenizer:
         self.notes_to_index[note], self.index_to_notes[self.unique_word] = self.unique_word, note
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    MainApplication(root).pack(side="top", fill="both", expand=True)
+    # root = tk.Tk()
+    # MainApplication(root).pack(side="top", fill="both", expand=True)
+    app = QApplication(sys.argv)
+
+    widget = MainApplication()
+    widget.resize(800, 600)
+    widget.showFullScreen()
+    widget.setWindowTitle("visual robotic score")
+    widget.setStyleSheet("background-color:white;")
+
+    widget.setCursor(Qt.BlankCursor)
+
+    widget.show()
+
+    sys.exit(app.exec_())
