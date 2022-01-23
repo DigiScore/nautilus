@@ -676,7 +676,61 @@ def create_model(seq_len, unique_notes, dropout=0.3, output_emb=100, rnn_unit=12
   model = tf.keras.Model(inputs=inputs, outputs=outputs, name='generate_scores_rnn')
   return model
 
-def main():
+# def main():
+    # list_all_midi = get_list_midi()
+    # sampled_200_midi = list_all_midi[0:100]  # changed to 100
+    # batch = 1
+    # start_index = 0
+    # note_tokenizer = NoteTokenizer()
+    # seq_len = 50
+    # EPOCHS = 4
+    # BATCH_SONG = 16
+    # BATCH_NNET_SIZE = 96
+    # TOTAL_SONGS = len(sampled_200_midi)
+    # FRAME_PER_SECOND = 5
+    #
+    # for i in tqdm(range(len(sampled_200_midi))):
+    #     dict_time_notes = generate_dict_time_notes(sampled_200_midi, batch_song=1, start_index=i, use_tqdm=False, fs=5)
+    #     full_notes = process_notes_in_song(dict_time_notes)
+    #     for note in full_notes:
+    #         note_tokenizer.partial_fit(list(note.values()))
+    #
+    # note_tokenizer.add_new_note('e')  # Add empty notes
+    #
+    # unique_notes = note_tokenizer.unique_word
+    # # print(unique_notes)
+    #
+    # model = create_model(seq_len, unique_notes)
+    #
+    # print(model.summary())
+    #
+    # # tf.keras.utils.plot_model(model, 'this_model.png', show_shapes=True)
+    #
+    # # TRAIN
+    #
+    # optimizer = Nadam()
+    #
+    # checkpoint = tf.train.Checkpoint(optimizer=optimizer,
+    #                                  model=model)
+    # checkpoint_dir = '../../training_checkpoints'
+    # checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
+    # loss_fn = sparse_categorical_crossentropy
+    #
+    # # TRAIN HERE (1 epoch = 1hour)
+    #
+    # train_class = TrainModel(EPOCHS, note_tokenizer, sampled_200_midi, FRAME_PER_SECOND,
+    #                          BATCH_NNET_SIZE, BATCH_SONG, optimizer, checkpoint, loss_fn,
+    #                          checkpoint_prefix, TOTAL_SONGS, model)
+    #
+    # train_class.train()
+    #
+    # # save mpdel as h5 and the tokenizer
+    #
+    # model.save('data/model/epochs4-long-model_ep4.h5')
+    # pickle.dump(note_tokenizer, open("epochs4-long-tokenizer.p", "wb"))
+
+
+if __name__ == '__main__':
     list_all_midi = get_list_midi()
     sampled_200_midi = list_all_midi[0:100]  # changed to 100
     batch = 1
@@ -704,7 +758,7 @@ def main():
 
     print(model.summary())
 
-    tf.keras.utils.plot_model(model, 'this_model.png', show_shapes=True)
+    # tf.keras.utils.plot_model(model, 'this_model.png', show_shapes=True)
 
     # TRAIN
 
@@ -728,6 +782,3 @@ def main():
 
     model.save('data/model/epochs4-long-model_ep4.h5')
     pickle.dump(note_tokenizer, open("epochs4-long-tokenizer.p", "wb"))
-
-if __name__ == '__main__':
-    main()

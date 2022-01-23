@@ -15,7 +15,7 @@ import random
 from datetime import datetime
 from music21 import stream, converter, clef, meter
 from data.nautilusTraining import SeqSelfAttention
-from data.nautilusTraining import NoteTokenizer
+# from data.nautilusTraining import NoteTokenizer
 
 from renderScore import ImageGen
 
@@ -63,6 +63,7 @@ class ScoreDev():
         #  generation from a single Carla DNA note
         starting_note = "".join(carla_note)
         generate = self.generate_from_one_note(self.note_tokenizer, starting_note)
+        # generate = self.generate_from_random(self.unique_notes, starting_note)
         print('generate 1 = ', generate)
         # create the midi file for visual notation
         generate = self.generate_notes(generate, self.model, self.unique_notes, self.max_generate, self.seq_len)
