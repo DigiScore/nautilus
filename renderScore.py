@@ -67,7 +67,7 @@ class ImageGen:
         # time = now.strftime("%d-%m-%Y-%H-%M-%S")
         # # save as a png render
         image_path = os.path.join(os.path.dirname(__file__), 'data/images',
-                                  f'nautilus-{time()}.png')
+                                  f'nautilus-{time()}-{note}-{duration}.png')
 
         try:
             brown.render_image((Mm(0), Mm(0), Mm(75), Mm(75)), image_path,

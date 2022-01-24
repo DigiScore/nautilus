@@ -63,8 +63,8 @@ class Audio_engine():
                                       frames_per_buffer=self.CHUNK)
             self.data = np.frombuffer(self.stream.read(self.CHUNK), dtype=np.int16)
             self.peak = np.average(np.abs(self.data)) * 2
-            bars = "#" * int(50 * self.peak / 2 ** 16)
-            print("%05d %s" % (self.peak, bars))
+            # bars = "#" * int(50 * self.peak / 2 ** 16)
+            # print("%05d %s" % (self.peak, bars))
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
