@@ -1,16 +1,15 @@
 import random
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QPushButton
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QBasicTimer
-from PyQt5.QtCore import pyqtSlot as Slot
 
 import glob
 from time import time
 from threading import Timer
 from queue import Queue
 
-class App(QWidget):
+class MainApplication(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.image_files = glob.glob('data/images/*.png')
@@ -27,16 +26,13 @@ class App(QWidget):
                                 "bottom_left",
                                 "bottom_right"]
 
-        self.score_signal = Queue()
-        # self.score_signal.add_to_queue(self.score_dict)
-
         # create all labels
         self.createLabels()
 
         # initiate slideshow
-        self.timer = QBasicTimer()
-        self.step = 0
-        self.delay = 500  # milliseconds
+        # self.timer = QBasicTimer()
+        # self.step = 0
+        # self.delay = 500  # milliseconds
 
         # self.slideshow()
         self.gui_thread = None
@@ -46,10 +42,6 @@ class App(QWidget):
         screen_resolution = self.geometry()
         height = screen_resolution.height()
         width = screen_resolution.width()
-
-        # print(height, width)
-        # setting  the geometry of window
-        # self.setGeometry(0, 0, 400, 300)
 
         # creating a label widget
         self.top_left_label = QLabel(self)
@@ -99,7 +91,7 @@ class App(QWidget):
         # resizing the widget
         self.bottom_right_label.resize(width / 2, height / 2)
 
-
+    # update the GUI and check the quad images
     def update_gui(self):
         # print("-------- updating gui")
         self.update()
@@ -107,37 +99,22 @@ class App(QWidget):
         self.gui_thread = Timer(0.1, self.update_gui)
         self.gui_thread.start()
 
-    # @Slot(object)
-    # def got_osc_signal(self, osc_msg):
-
-
     def slideshow(self):
-        # if self.step >= len(self.image_files):
-        #     self.timer.stop()
-        #     self.button.setText('Slide Show Finished')
-        #     return
-        # self.timer.start(self.delay, self)
-        # while True:
+    # check the status of each quad
         for quad in self.score_dict_list:
             t = self.score_dict[quad]["time"]
-            # print(quad, t)
 
-        # for key, value in self.score_dict.items():
+            # for key, value in self.score_dict.items():
+            # if times up then change image in quadrant
             if t < time():
                 file = self.image_files[random.randrange(len(self.image_files))]
                 image_duration = t + (float(file[-7:-4]) * (random.randrange(5, 30)))
                 # self.score_dict[key] = image_duration
                 self.score_dict[quad]["time"] = image_duration
-                print("here", quad)
+                # print("here", quad)
 
-            # self.timer.start(image_duration * 3, self)
-
+                # set the new image to a pixmap and put into quad
                 self.pixmap = QPixmap(file)
-            # scale = 2
-
-            # size = self.pixmap.size()
-
-                # scaled_pixmap = self.pixmap.scaled(scale * size)
                 if quad == "top_left":
                     self.top_left_label.setPixmap(self.pixmap)
                 elif quad == "top_right":
@@ -146,28 +123,13 @@ class App(QWidget):
                     self.bottom_left_label.setPixmap(self.pixmap)
                 else:
                     self.bottom_right_label.setPixmap(self.pixmap)
-                # self.setWindowTitle("{} --> {}".format(str(self.step), file))
-            # self.step += 1
 
 
-
-    # self.label.setPixmap(scaled_pixmap)
-
-
-# pick image files you have in the working folder
-# or give full path name
-# self.image_files = glob.glob('data/images/*.png')
-
-# app = QApplication([])
-# w = Slides(image_files)
-# setGeometry(x, y, w, h)  x,y = upper left corner coordinates
-# w.setGeometry(100, 100, 700, 500)
-# w.show()
-# app.exec_()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    image_viewer = App()
+    image_viewer = MainApplication()
+    # image_viewer.showFullScreen()
     image_viewer.show()
     sys.exit(app.exec_())
 

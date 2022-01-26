@@ -8,11 +8,15 @@ import atexit
 from threading import Thread
 from queue import Queue
 import sys
+from PyQt5.QtGui import QPixmap
+
+from threading import Timer
+
 
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
 from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QFont
-from PyQt5.QtWidgets import (QApplication, QWidget)
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
 # import project modules
 from score import ScoreDev
@@ -20,113 +24,126 @@ from audioEngine import Audio_engine
 
 
 class MainApplication(QWidget):
-    def __init__(self):
-        QWidget.__init__(self)
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+
+        # set vars and params
         self.running = True
-        # self.UPDATE_RATE = 0.1
+
+        self.score_dict = {"top_left": {"time": time(), "image": None},
+                           "top_right": {"time": time(), "image": None},
+                           "bottom_left": {"time": time(), "image": None},
+                           "bottom_right": {"time": time(), "image": None}}
+
+        self.score_dict_list = ["top_left",
+                                "top_right",
+                                "bottom_left",
+                                "bottom_right"]
 
         # generate the ML score images
         score = ScoreDev()
 
         # owns the images that were produced by the scorebot
-        self.images = glob.glob('data/images/*.png')
+        self.image_files = glob.glob('data/images/*.png')
 
         # start the audio listener thread
         audiobot = Audio_engine()
 
-        # create canvas
-        # self.canvas_one = tk.Canvas(self.window, width=1024, height=600, bg='white')
-        # self.canvas_one.pack()
-        #
-        # self.painter = QPainter(self)
-        # self.painter.setRenderHint(QPainter.Antialiasing, True)
+        # widget params
+        self.setGeometry(100, 100, 900, 700)
 
-        # self.painter.setOpacity(i["image_transparency"])
-        # self.painter.compositionMode = QPainter.CompositionMode_HardLight
+        # create all labels
+        self.createLabels()
 
-        # get first image
-        self.time_on_screen = time()
-        self.update_image()
-
-        # kickstart thread
-        # start a thread to wait for commands to write
-        self.incoming_commands_queue = Queue()
-        # self.gui_thread = None
+        # and ... off we go
+        self.gui_thread = None
         self.update_gui()
 
-        # # start a thread to wait for commands to write
-        # self.incoming_commands_queue = Queue()
-
-        # listeningThread = Thread(target=self.update_image, args=(self.incoming_commands_queue,), daemon=True)
-        # listeningThread.start()
-
-        # atexit.register(self.close_sequence)
-
-    # def update_image(self):
-    #     """check to see if anything is in the queue"""
-    #     while self.running:
-    #         if self.incoming_commands_queue.qsize() > 0:
-    #             input_image = self.incoming_commands_queue.get()
-    #             # print("input_str = {}".format(input_str))
-    #
-    #             # score1_large = score1.zoom(2, 2)  # zoom 2x
-    #             # mypart1 = self.canvas_one.create_image(512, 300, image=input_image)  # put in middle of canvas
-    #
-    #         # # pause to let other threads work
-    #         # sleep(0.01)
-
-
+    # update the GUI and check the quad images
     def update_gui(self):
         # print("-------- updating gui")
-
-        # check if anything in the queue?
-        # self.update_image()
-
-        ## update window
-        # self.window.update()
-
-        # self.gui_thread = threading.Timer(0.1, self.update_gui)
-        # self.gui_thread.start()
-        # self.after(self.UPDATE_RATE, self.update_gui)
-
-        # print("-------- updating gui")
         self.update()
-        self.gui_thread = threading.Timer(0.1, self.update_gui)
+        self.updateImage()
+        self.gui_thread = Timer(0.1, self.update_gui)
         self.gui_thread.start()
 
-    # def paintEvent(self, paint_event):
-    #     painter = QPainter(self)
-    #     painter.setRenderHint(QPainter.Antialiasing, True)
+    def createLabels(self):
+        screen_resolution = self.geometry()
+        height = screen_resolution.height()
+        width = screen_resolution.width()
 
-        # if len(self.process_osc_signal.queue):
-        #     image_to_display = QImage(self.process_osc_signal.external_images[i["image"]])
-        #     painter.drawImage(x, y, image_to_display)
+        # creating a label widget
+        self.top_left_label = QLabel(self)
 
-    def update_image(self):
-        """randomly decide on an image to show on screen,
-        determine how long on screen and add to queue"""
-        if time() > self.time_on_screen:
-            # how long on screen? 3 - 12 seconds
-            rnd_time = randrange(3, 12)
-            self.time_on_screen = time() + rnd_time
+        # moving position
+        self.top_left_label.move(0, 0)
 
-            # which image?
-            rnd_image = randrange(len(self.images))
-            score_to_show = self.images[rnd_image]
-            # image_to_display = tk.PhotoImage(file=score_to_show)
-            # image_to_display = QImage(score_to_show)
-            # self.painter.drawImage(0, 0, image_to_display)
+        # setting up border
+        self.top_left_label.setStyleSheet("border: 1px solid black;")
 
-            # put this into the Queue
-    #         # self.incoming_commands_queue.put(image_to_display)
-    #         self.display_image(score_to_show)
-    #
-    # def display_image(self, score_to_show):
-            painter = QPainter(self)
-            # painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.compositionMode = QPainter.CompositionMode_HardLight
-            image_to_display = QImage(score_to_show)
-            painter.drawImage(0, 0, image_to_display)
+        # resizing the widget
+        self.top_left_label.resize(width / 2, height / 2)
+
+        # creating a label widget
+        self.top_right_label = QLabel(self)
+
+        # moving position
+        self.top_right_label.move(width / 2, 0)
+
+        # setting up border
+        self.top_right_label.setStyleSheet("border: 1px solid black;")
+
+        # resizing the widget
+        self.top_right_label.resize(width / 2, height / 2)
+
+        # creating a label widget
+        self.bottom_left_label = QLabel(self)
+
+        # moving position
+        self.bottom_left_label.move(0, height / 2)
+
+        # setting up border
+        self.bottom_left_label.setStyleSheet("border: 1px solid black;")
+
+        # resizing the widget
+        self.bottom_left_label.resize(width / 2, height / 2)
+
+        # creating a label widget
+        self.bottom_right_label = QLabel(self)
+
+        # moving position
+        self.bottom_right_label.move(width / 2, height / 2)
+
+        # setting up border
+        self.bottom_right_label.setStyleSheet("border: 1px solid black;")
+
+        # resizing the widget
+        self.bottom_right_label.resize(width / 2, height / 2)
+
+    def updateImage(self):
+    # check the status of each quad
+        for quad in self.score_dict_list:
+            t = self.score_dict[quad]["time"]
+
+            # for key, value in self.score_dict.items():
+            # if times up then change image in quadrant
+            if t < time():
+                file = self.image_files[randrange(len(self.image_files))]
+                image_duration = t + (float(file[-7:-4]) * (randrange(2, 20)))
+                # self.score_dict[key] = image_duration
+                self.score_dict[quad]["time"] = image_duration
+                # print("here", quad)
+
+                # set the new image to a pixmap and put into quad
+                self.pixmap = QPixmap(file)
+                if quad == "top_left":
+                    self.top_left_label.setPixmap(self.pixmap)
+                elif quad == "top_right":
+                    self.top_right_label.setPixmap(self.pixmap)
+                elif quad == "bottom_left":
+                    self.bottom_left_label.setPixmap(self.pixmap)
+                else:
+                    self.bottom_right_label.setPixmap(self.pixmap)
 
 """this is here for access from elsewhere
 and is written into the note-tokeniser file"""
@@ -189,18 +206,8 @@ class NoteTokenizer:
         self.notes_to_index[note], self.index_to_notes[self.unique_word] = self.unique_word, note
 
 if __name__ == "__main__":
-    # root = tk.Tk()
-    # MainApplication(root).pack(side="top", fill="both", expand=True)
     app = QApplication(sys.argv)
-
-    widget = MainApplication()
-    widget.resize(800, 600)
-    # widget.showFullScreen()
-    widget.setWindowTitle("visual robotic score")
-    widget.setStyleSheet("background-color:white;")
-
-    widget.setCursor(Qt.BlankCursor)
-
-    widget.show()
-
+    image_viewer = MainApplication()
+    # image_viewer.showFullScreen()
+    image_viewer.show()
     sys.exit(app.exec_())
