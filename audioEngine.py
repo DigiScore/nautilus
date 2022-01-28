@@ -19,7 +19,7 @@ class Audio_engine():
         print('Audio bot is now working')
 
         # define class params 4 audio listener
-        self.go_bang = True
+        self.go_bang = False
         self.peak = 0
         self.CHUNK = 2 ** 11
         self.RATE = 44100
@@ -30,16 +30,6 @@ class Audio_engine():
         seed_rnd = random.randrange(self.num)
         random.seed(seed_rnd)
         random.shuffle(self.list_all_audio)
-
-
-        # # open the listener feed
-        # self.p = pyaudio.PyAudio()
-        # self.stream = self.p.open(format=pyaudio.paInt16,
-        #                           channels=1,
-        #                           rate=self.RATE,
-        #                           input=True,
-        #                           frames_per_buffer=self.CHUNK)
-
 
         # start listener thread
         print('threading 1 started')
@@ -63,8 +53,8 @@ class Audio_engine():
                                       frames_per_buffer=self.CHUNK)
             self.data = np.frombuffer(self.stream.read(self.CHUNK), dtype=np.int16)
             self.peak = np.average(np.abs(self.data)) * 2
-            # bars = "#" * int(50 * self.peak / 2 ** 16)
-            # print("%05d %s" % (self.peak, bars))
+            bars = "#" * int(50 * self.peak / 2 ** 16)
+            print("%05d %s" % (self.peak, bars))
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
@@ -72,16 +62,17 @@ class Audio_engine():
     def audio_wrangler(self):
         # am listening for sound level above a certain threshold
         while True:
-            chance_make = random.randrange(100)
-            if self.peak > 4000:
-                if chance_make > 20: # 80% chance of playing if you activate me
-                    print ('react to sound')
-                    self.audio_comp()
-            else:
-                #if no audio detected then 50% chance of self generatig a sound
-                if chance_make > 50:
-                    print(f'{chance_make}   =  on my own')
-                    self.audio_comp()
+            if self.go_bang:
+                chance_make = random.randrange(100)
+                if self.peak > 4000:
+                    if chance_make > 20: # 80% chance of playing if you activate me
+                        print ('react to sound')
+                        self.audio_comp()
+                else:
+                    #if no audio detected then 50% chance of self generatig a sound
+                    if chance_make > 50:
+                        print(f'{chance_make}   =  on my own')
+                        self.audio_comp()
 
     # todo replace with queue
     def audio_comp(self):

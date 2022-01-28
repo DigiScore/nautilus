@@ -1,22 +1,14 @@
 # import python modules
-import threading
 import glob
-import tkinter as tk
+from threading import Timer
 from time import sleep, time
 from random import randrange
-import atexit
-from threading import Thread
-from queue import Queue
 import sys
+
+# import PyQt5 modules (universal with PySide2)
 from PyQt5.QtGui import QPixmap
-
-from threading import Timer
-
-
-from PyQt5.Qt import Qt
 from PyQt5.QtCore import pyqtSlot as Slot
-from PyQt5.QtGui import QPainter, QPen, QColor, QImage, QFont
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
 
 # import project modules
 from score import ScoreDev
@@ -24,8 +16,11 @@ from audioEngine import Audio_engine
 
 
 class MainApplication(QWidget):
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
+
+    def __init__(self):
+        QWidget.__init__(self)
+        # is unity running the notation png's?
+        self.unity_score = True
 
         # set vars and params
         self.running = True
@@ -46,34 +41,76 @@ class MainApplication(QWidget):
         #  and brown/constants.py
         score = ScoreDev()
 
-        # owns the images that were produced by the scorebot
-        self.image_files = glob.glob('data/images/*.png')
-
         # start the audio listener thread
-        audiobot = Audio_engine()
+        self.audiobot = Audio_engine()
 
-        # widget params
-        self.setGeometry(100, 100, 900, 700)
+        # UI setup and off we go
+        self.title = 'Nautilus'
+        self.left = 10
+        self.top = 10
+        self.width = 320
+        self.height = 200
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
 
         # create all labels
-        self.createLabels()
+        if self.unity_score:
+            # create a start button
+            self.start_button = QPushButton("START", self)
+            self.start_button.setCheckable(True)
+            self.start_button.toggle()
+            self.start_button.move(100, 70)
 
-        # and ... off we go
-        self.gui_thread = None
-        self.update_gui()
+            # adding action to the button
+            self.start_button.clicked.connect(self.start_score)
+
+            # and off we go
+            self.show()
+
+        else:
+            # owns the images that were produced by the scorebot
+            self.image_files = glob.glob('data/images/*.png')
+
+            # create labels
+            self.createLabels()
+
+            # and off we go
+            self.gui_thread = None
+            self.update_gui()
+
+    @Slot()
+    def start_score(self):
+        if not self.start_button.isChecked():
+            print("Starting")
+            self.audiobot.go_bang = True
+        else:
+            print("Stopping")
+            self.audiobot.go_bang = False
+
+            # todo - close down all other funcs & threads
+            sleep(1)
+            print("bye bye")
+            self.running = False
 
     # update the GUI and check the quad images
     def update_gui(self):
         # print("-------- updating gui")
-        self.update()
-        self.updateImage()
-        self.gui_thread = Timer(0.1, self.update_gui)
-        self.gui_thread.start()
+        while self.running:
+            self.update()
+            self.updateImage()
+            self.gui_thread = Timer(0.1, self.update_gui)
+            self.gui_thread.start()
 
     def createLabels(self):
         screen_resolution = self.geometry()
         height = screen_resolution.height()
         width = screen_resolution.width()
+
+        # widget params
+        self.setGeometry(100, 100, 900, 700)
 
         # creating a label widget
         self.top_left_label = QLabel(self)
@@ -212,5 +249,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     image_viewer = MainApplication()
     # image_viewer.showFullScreen()
-    image_viewer.show()
+    # image_viewer.show()
     sys.exit(app.exec_())
