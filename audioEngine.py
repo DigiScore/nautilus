@@ -9,6 +9,7 @@ import random
 import threading
 from pydub import AudioSegment
 from pydub.playback import play
+import concurrent.futures
 
 # import project modules
 # from score import ScoreDev
@@ -19,7 +20,7 @@ class Audio_engine():
         print('Audio bot is now working')
 
         # define class params 4 audio listener
-        self.go_bang = False
+        self.go_bang = False # waiting from go from __main__
         self.peak = 0
         self.CHUNK = 2 ** 11
         self.RATE = 44100
@@ -32,14 +33,13 @@ class Audio_engine():
         random.shuffle(self.list_all_audio)
 
         # start listener thread
-        print('threading 1 started')
+        print('Audio threading started')
         th1 = threading.Thread(target=self.listener)
-        th1.start()
-
-        print('threading 2 started')
 
         # start the composition thread
-        th2 = threading.Timer(0.1, self.audio_wrangler)
+        th2 = threading.Timer(interval=0.1, function=self.audio_wrangler)
+
+        th1.start()
         th2.start()
 
     def listener(self):
@@ -62,17 +62,18 @@ class Audio_engine():
     def audio_wrangler(self):
         # am listening for sound level above a certain threshold
         while True:
-            if self.go_bang:
+            while self.go_bang:
                 chance_make = random.randrange(100)
                 if self.peak > 4000:
                     if chance_make > 20: # 80% chance of playing if you activate me
                         print ('react to sound')
                         self.audio_comp()
-                else:
-                    #if no audio detected then 50% chance of self generatig a sound
-                    if chance_make > 50:
-                        print(f'{chance_make}   =  on my own')
-                        self.audio_comp()
+                # if no audio detected then 50 % chance of self generatig a sound
+                elif chance_make > 50:
+                    print(f'{chance_make}   =  on my own')
+                    self.audio_comp()
+
+            # sleep(0.1)
 
     # todo replace with queue
     def audio_comp(self):
