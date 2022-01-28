@@ -71,7 +71,7 @@ class ImageGen:
 
         try:
             brown.render_image((Mm(0), Mm(0), Mm(75), Mm(75)), image_path,
-                           dpi=200,
+                           dpi=600,
                            bg_color=Color(0, 120, 185, 0),
                            autocrop=True)
         except:

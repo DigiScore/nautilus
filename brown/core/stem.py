@@ -20,7 +20,9 @@ class Stem(Path, StaffObject):
         StaffObject.__init__(self, parent=parent)
         thickness = (
             self.staff.music_font.engraving_defaults['stemThickness'])
-        self.pen = Pen(thickness=thickness)
+        # todo - changed colour here - was not included as arg
+        self.pen = Pen(thickness=thickness,
+                       color=(255, 255, 255))
 
         self._height = height
         # Draw stem path

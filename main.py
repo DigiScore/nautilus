@@ -41,6 +41,9 @@ class MainApplication(QWidget):
                                 "bottom_right"]
 
         # generate the ML score images
+        # todo - find better solution for changing global font colour
+        # todo - current solution was to change color in brown/core/stem.py
+        #  and brown/constants.py
         score = ScoreDev()
 
         # owns the images that were produced by the scorebot

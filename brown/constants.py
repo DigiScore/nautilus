@@ -14,12 +14,14 @@ RESOURCES_DIR = os.path.join(BROWN_ROOT_DIR, 'resources')
 UI_DIR = os.path.join(BROWN_ROOT_DIR, 'earle', 'ui')
 
 # Default pen properties
-DEFAULT_PEN_COLOR = Color(0, 0, 0)
+# todo - changed colour here - was (0, 0, 0)
+DEFAULT_PEN_COLOR = Color(255, 255, 255)
 DEFAULT_PEN_THICKNESS = GraphicUnit(0)  # GraphicUnits
 DEFAULT_PEN_PATTERN = PenPattern.SOLID
 
 # Default brush properties
-DEFAULT_BRUSH_COLOR = Color(0, 0, 0, 255)
+# todo - changed colour here - was (0, 0, 0, 255)
+DEFAULT_BRUSH_COLOR = Color(255, 255, 255, 255)
 DEFAULT_PATH_BRUSH_COLOR = Color(0, 0, 0, 0)
 DEFAULT_BRUSH_PATTERN = BrushPattern.SOLID
 
