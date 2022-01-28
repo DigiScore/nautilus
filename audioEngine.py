@@ -21,6 +21,7 @@ class Audio_engine():
 
         # define class params 4 audio listener
         self.go_bang = False # waiting from go from __main__
+        self.running = True
         self.peak = 0
         self.CHUNK = 2 ** 11
         self.RATE = 44100
@@ -44,7 +45,7 @@ class Audio_engine():
 
     def listener(self):
         # open the listener feed
-        while True:
+        while self.running:
             self.p = pyaudio.PyAudio()
             self.stream = self.p.open(format=pyaudio.paInt16,
                                       channels=1,
@@ -61,7 +62,7 @@ class Audio_engine():
 
     def audio_wrangler(self):
         # am listening for sound level above a certain threshold
-        while True:
+        while self.running:
             while self.go_bang:
                 chance_make = random.randrange(100)
                 if self.peak > 4000:

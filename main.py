@@ -85,11 +85,13 @@ class MainApplication(QWidget):
     def start_score(self):
         if not self.start_button.isChecked():
             print("Starting")
+            self.start_button.setText("STOP")
             self.audiobot.go_bang = True
         else:
             print("Stopping")
             self.audiobot.go_bang = False
-
+            self.audiobot.running = False
+            self.start_button.setText("START")
             # todo - close down all other funcs & threads
             sleep(1)
             print("bye bye")
