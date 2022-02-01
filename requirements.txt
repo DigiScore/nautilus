@@ -2,7 +2,6 @@ PyQt5~=5.15.6
 Tensorflow~=2.7.0
 PyAudio~=0.2.11
 Music21~=7.1.0
-
 numpy~=1.22.1
 tqdm~=4.62.3
 pydub~=0.25.1

@@ -1,19 +1,11 @@
-#!/usr/bin/env python3
-
+# import all python modules
 import numpy as np
-from time import sleep
 import pyaudio
-# from music21 import stream, converter, clef, meter
 import glob
 import random
 import threading
 from pydub import AudioSegment
 from pydub.playback import play
-import concurrent.futures
-
-# import project modules
-# from score import ScoreDev
-# from audio import AudioBot
 
 class Audio_engine():
     def __init__(self):
@@ -76,11 +68,12 @@ class Audio_engine():
 
             # sleep(0.1)
 
-    # todo replace with queue
+    # audio shaping and design
     def audio_comp(self):
         snd = self.random_design()
         play(snd)
 
+    # adds random gen params to audio object
     def random_design(self):
         # choose a random file
         rnd_file = random.randrange(self.num)
@@ -99,8 +92,8 @@ class Audio_engine():
         fade_sound = new_sound.fade_in(1000).fade_out(500)
         return fade_sound
 
+    # randomly generate playback speed 0.3-0.5
     def speed_change(self, sound, vol):
-        # randomly generate playback speed 0.3-0.5
         rnd_speed = random.randrange(3, 5)
         speed = rnd_speed / 10
         print('change of speed = ', speed)

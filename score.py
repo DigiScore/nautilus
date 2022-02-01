@@ -1,9 +1,4 @@
-"""
---------------------------------------
------ produce performance score ------
---------------------------------------
-"""
-
+# import all python modules
 import tensorflow as tf
 import pickle
 import pretty_midi
@@ -17,6 +12,7 @@ from music21 import stream, converter, clef, meter
 from data.nautilusTraining import SeqSelfAttention
 # from data.nautilusTraining import NoteTokenizer
 
+# import project modules
 from renderScore import ImageGen
 
 class ScoreDev():
@@ -27,7 +23,7 @@ class ScoreDev():
     """
 
     def __init__(self):
-        # first we need to build model from trained files
+        # load the trained model
         self.model = tf.keras.models.load_model('data/epochs4-long-model_ep4.h5',
                                            custom_objects=SeqSelfAttention.get_custom_objects())
 
@@ -45,19 +41,6 @@ class ScoreDev():
         carla_start_note = self.carla_rnd()  # generates a start note from Carla's improv transcipt
         file_to_open = self.generatng_score(carla_start_note)
         self.open_score(file_to_open)
-
-
-    # # expand durations on generated score and open as LilyPond png
-    # def delta_change(self, midi_file_name):
-    #     self.delta_factor = 4
-    #     original_in = converter.parseFile(midi_file_name) # original primer
-    #     output_midi = stream.Stream() # new stream
-    #     new_part = original_in.augmentOrDiminish(delta_factor) # augments note length to factor of delta_factor
-    #     output_midi.insert(0, new_part)
-    #     print('output_midi.show')
-    #     output_midi.show('text')
-    #     output_midi.write('midi', fp=midi_file_name)
-    #     print(f'saving bit = {midi_file_name}')
 
     def generatng_score(self, carla_note):
         #  generation from a single Carla DNA note
@@ -77,10 +60,6 @@ class ScoreDev():
         return midi_file_name
 
     def open_score(self, midi_file_to_open):
-        # open midifile after manipulating duration data
-        # self.delta_change(midi_file_to_open)
-        # print("\n\n\nNow I'm going to print you the score\n\n\n")
-        # convert to lily.png
         note_list = []
         parts_stream = stream.Stream()
         parts_stream.insert(0, clef.TrebleClef())
@@ -101,16 +80,6 @@ class ScoreDev():
                              "octave": n.pitch.octave,
                              "duration": n.duration.quarterLength}
                 self.brown_score.make_image(note_dict)
-
-        # for i, nt in enumerate(note_list):
-        #     note_pop = note_list[i]
-        #     parts_stream.append(note_pop)
-
-        # png_fp = 'data/output/png-' + self.current_time
-        # parts_stream.write('lily.png', fp=png_fp)
-
-        # return str(png_fp+'.png')
-
 
     # randomly generates the seed note from Carla's list of notes, to seed the NN process
     def carla_rnd(self):

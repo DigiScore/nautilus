@@ -8,6 +8,8 @@ from brown.common import *
 
 
 class ImageGen:
+    """generates png images using Brown from
+    the raw midi data supplied by Neural Nets"""
     def __init__(self):
         print('setting up')
         brown.setup()
@@ -63,9 +65,7 @@ class ImageGen:
         print(f'printed note  ===== {note}')
         Chordrest(Mm(self.first_note_offset + self.staff_unit), staff, [note], Beat(int(duration), 4))
 
-        # now = datetime.now()
-        # time = now.strftime("%d-%m-%Y-%H-%M-%S")
-        # # save as a png render
+        # save as a png render
         image_path = os.path.join(os.path.dirname(__file__), 'data/images',
                                   f'nautilus-{time()}-{note}-{duration}.png')
 
@@ -83,7 +83,6 @@ class ImageGen:
         staff.remove()
         flow.remove()
 
-        # return image_path
 
 if __name__ == "__main__":
     test_dict = {"pitch": "G", "octave": 7, "duration": 14}
