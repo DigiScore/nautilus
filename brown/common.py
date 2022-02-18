@@ -8,7 +8,7 @@ from brown.core.brace import Brace
 from brown.core.brush import Brush
 from brown.core.brush_pattern import BrushPattern
 from brown.core.chordrest import Chordrest
-from brown.core.clef import Clef
+from brown.core.clef import Clef, InvisibleClef
 from brown.core.document import Document
 from brown.core.dynamic import Dynamic
 from brown.core.flag import Flag

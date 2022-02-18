@@ -3,6 +3,8 @@ import re
 from brown.models.accidental_type import AccidentalType
 from brown.utils.exceptions import InvalidPitchDescriptionError
 
+from random import getrandbits
+
 
 class Pitch:
 
@@ -100,7 +102,10 @@ class Pitch:
         if accidental_str:
             self._accidental_type = AccidentalType[accidental_str]
         else:
-            self._accidental_type = None
+            if getrandbits(1):
+                self._accidental_type = None
+            else:
+                self._accidental_type = AccidentalType.natural
         if not ticks:
             self._octave = 4
         else:

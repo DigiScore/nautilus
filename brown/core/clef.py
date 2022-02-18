@@ -3,6 +3,8 @@ from brown.core.staff_object import StaffObject
 from brown.models.clef_type import ClefType
 
 
+
+
 class Clef(MusicText, StaffObject):
 
     """A graphical and logical staff clef.
@@ -105,3 +107,7 @@ class Clef(MusicText, StaffObject):
 
     def _render_spanning_continuation(self, local_start_x, start, stop):
         self._render_slice(start, None)
+
+class InvisibleClef(Clef):
+    def _render_slice(self, pos, clip_start_x=None, clip_width=None):
+        pass

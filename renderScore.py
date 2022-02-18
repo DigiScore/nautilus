@@ -13,8 +13,8 @@ class ImageGen:
     def __init__(self):
         print('setting up')
         brown.setup()
-        self.staff_unit = 10
-        self.first_note_offset = 2
+        self.staff_unit = 5
+        self.first_note_offset = 0
 
     def make_image(self, note_dict):
         """generate a random seq of notes on a staff
@@ -25,7 +25,7 @@ class ImageGen:
                                              "duration")(note_dict)
 
         # make flow env for notes. gap + offset on left + gap right
-        manuscript_width = self.staff_unit + self.first_note_offset + self.staff_unit
+        manuscript_width = self.staff_unit * 2
 
         # create coordinate space container
         flow = Flowable((Mm(0), Mm(0)), Mm(manuscript_width), Mm(30))
@@ -35,7 +35,7 @@ class ImageGen:
         staff = Staff((Mm(0), Mm(0)), Mm(manuscript_width), flow, Mm(1))
 
         # populate it with music furniture
-        Clef(staff, Mm(0), 'treble')
+        InvisibleClef(staff, Mm(0), 'treble')
 
         # parse music21 details to brown notation
         # e.g. Music21 = G#, octave 5 - brown = gs'
@@ -63,7 +63,7 @@ class ImageGen:
             int(duration)
 
         print(f'printed note  ===== {note}')
-        Chordrest(Mm(self.first_note_offset + self.staff_unit), staff, [note], Beat(int(duration), 4))
+        Chordrest(Mm(self.staff_unit), staff, [note], Beat(int(duration), 4))
 
         # save as a png render
         image_path = os.path.join(os.path.dirname(__file__), 'data/images',
@@ -85,6 +85,19 @@ class ImageGen:
 
 
 if __name__ == "__main__":
-    test_dict = {"pitch": "G", "octave": 7, "duration": 14}
+    pitches = ["A", "A#", "B-", "B", "C-", "C",
+               "C#", "D-", "D", "D#", "E-",
+               "E", "E#", "F-", "F", "F#", "G-",
+               "G", "G#", "A-"]
+
+    octave = [4, 5, 6]
+
     test = ImageGen()
-    test.make_image(test_dict)
+
+    for octav in octave:
+        for pitch in pitches:
+            pitch_dict = {"pitch": pitch, "octave": octav, "duration": 4}
+
+    # test_dict = {"pitch": "G", "octave": 7, "duration": 14}
+
+            test.make_image(pitch_dict)

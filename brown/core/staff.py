@@ -13,9 +13,18 @@ class Staff(Path):
 
     _whole_note_size = 8  # StaffUnits
 
-    def __init__(self, pos, length, flowable,
-                 staff_unit=None, line_count=5, music_font=None,
-                 default_time_signature_duration=None):
+    def __init__(
+            self,
+            pos,
+            length,
+            flowable,
+            staff_unit=None,
+            line_count=5,
+            music_font=None,
+            default_time_signature_duration=None,
+            pen=None,
+            ):
+
         """
         Args:
             pos (Point): The position of the top-left corner of the staff
@@ -28,7 +37,7 @@ class Staff(Path):
             default_time_signature_duration (tuple or None): The duration tuple
                 of the initial time signature. If none, (4, 4) will be used.
         """
-        super().__init__(pos, parent=flowable)
+        super().__init__(pos, parent=flowable, pen=pen)
         self._line_count = line_count
         self._unit = self._make_unit_class(staff_unit if staff_unit
                                            else constants.DEFAULT_STAFF_UNIT)
