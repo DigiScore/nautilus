@@ -365,8 +365,9 @@ class AiDataEngine():
     def emitter(self, incoming_affect_listen):
         if incoming_affect_listen != self.old_val:
 
-            self.aiEmissionsQueue.put(self.datadict)
-            print('//////////////////                   EMITTING and making sound')
+            if self.aiEmissionsQueue.qsize() < 1:
+                self.aiEmissionsQueue.put(self.datadict)
+                print('//////////////////                   EMITTING and making sound')
 
             # # make sound/ move robot?
             # self.soundbot.make_sound(incoming_affect_listen, self.rhythm_rate)

@@ -16,7 +16,7 @@ class AIData:
         # self.incoming_commands_queue = Queue()
 
         # instantiate the AI server
-        engine = AiDataEngine(speed=1)
+        engine = AiDataEngine(speed=0.1)
 
         # instantiate the controller client and pass it te queue
         audioEngine = AudioEngine(engine)
@@ -44,27 +44,3 @@ class AIData:
 
 if __name__ == "__main__":
     go = AIData()
-
-    # listeningThread = Thread(target=listening, args=(incoming_commands_queue,), daemon=True)
-    # listeningThread.start()
-    #
-    #
-    # ai_signal = GotAISignal()
-    #
-    # # and connect to emitting stream
-    # ai_signal.ai_str.connect(self.got_ai_signal)
-    #
-    # # open a signal streamer for music harmony reporting
-    # harmony_signal = GotMusicSignal()
-    #
-    # # and connect to emitting stream
-    # harmony_signal.harmony_str.connect(self.got_harmony_signal)
-    #
-    # # init the harmony dict
-    # self.harmony_dict = {}
-    #
-    # # # init the image generator to get notes for bespoke images
-    # # self.image_gen = ImageGen()
-    #
-    # # start the ball rolling with all data generation and parsing
-    # self._ai_data_engine = AIData(ai_signal, harmony_signal)
