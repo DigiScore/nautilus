@@ -146,9 +146,11 @@ class AudioEngine:
         print("wrangler started")
         while self.running:
             chance_make = random.randrange(100)
-            if self.aiEngine.aiEmissionsQueue() > 0:
+            if self.aiEngine.aiEmissionsQueue.qsize() > 0:
                 print('react to sound')
                 # self.incoming_commands_queue.put(1)
+                _getSomething = self.aiEngine.aiEmissionsQueue.get()
+                print("test", _getSomething)
                 self.audio_comp()
 
             # aiOutput = self.aiEngine.datadict['master_output']
