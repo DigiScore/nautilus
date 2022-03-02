@@ -1,7 +1,6 @@
 """main client script
 controls microphone stream"""
 
-
 # get python libraries
 import numpy as np
 import pyaudio
@@ -89,58 +88,6 @@ class AudioEngine:
         self.stream.close()
         self.p.terminate()
 
-
-# class AudioBot:
-#     def __init__(self, aiEngine):
-        # print('Audio bot is now working')
-        #
-        # # define class params 4 audio listener
-        # self.go_bang = False # waiting from go from __main__
-        # self.running = True
-        # self.peak = 0
-        # # self.CHUNK = 2 ** 11
-        # # self.RATE = 44100
-        #
-        # # define the audio queue
-        # self.incoming_commands_queue = Queue()
-        #
-        # # define class params 4 audio composer
-        # self.list_all_audio = glob.glob('data/audio/*.wav')
-        # self.num = len(self.list_all_audio)
-        # seed_rnd = random.randrange(self.num)
-        # random.seed(seed_rnd)
-        # random.shuffle(self.list_all_audio)
-        #
-        # # own the ai engine
-        # self.aiEngine = aiEngine
-        #
-        # # start listener thread
-        # print('Audio threading started')
-        # # th1 = threading.Thread(target=self.parseQueueueue)
-        #
-        # # start the composition thread
-        # th2 = threading.Timer(interval=0.1, function=self.audio_wrangler)
-        #
-        # # th1.start()
-        # th2.start()
-
-    # def listener(self):
-    #     # open the listener feed
-    #     while self.running:
-    #         self.p = pyaudio.PyAudio()
-    #         self.stream = self.p.open(format=pyaudio.paInt16,
-    #                                   channels=1,
-    #                                   rate=self.RATE,
-    #                                   input=True,
-    #                                   frames_per_buffer=self.CHUNK)
-    #         self.data = np.frombuffer(self.stream.read(self.CHUNK), dtype=np.int16)
-    #         self.peak = np.average(np.abs(self.data)) * 2
-    #         bars = "#" * int(50 * self.peak / 2 ** 16)
-    #         print("%05d %s" % (self.peak, bars))
-    #     self.stream.stop_stream()
-    #     self.stream.close()
-    #     self.p.terminate()
-
     def audio_wrangler(self):
         # am listening for sound level above a certain threshold
         print("wrangler started")
@@ -152,6 +99,7 @@ class AudioEngine:
                 _getSomething = self.aiEngine.aiEmissionsQueue.get()
                 print("test", _getSomething)
                 self.audio_comp()
+                # self.aiEngine.aiEmissionsQueue.clear()
 
             # aiOutput = self.aiEngine.datadict['master_output']
 
@@ -216,7 +164,7 @@ class AudioEngine:
 
     # randomly generate playback speed 0.3-0.5
     def speed_change(self, sound, vol):
-        rnd_speed = random.randrange(3, 5)
+        rnd_speed = random.randrange(5, 10)
         speed = rnd_speed / 10
         print('change of speed = ', speed)
         print('change of gain = ', vol)
