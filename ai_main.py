@@ -12,9 +12,7 @@ class AIData:
      pass it the master signal class for emmission"""
 
     def __init__(self):
-        # # start a thread to wait for commands to write
-        # self.incoming_commands_queue = Queue()
-
+        # todo - need to implement some sort of director for the
         # instantiate the AI server
         engine = AiDataEngine(speed=0.1)
 

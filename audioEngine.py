@@ -1,8 +1,9 @@
 """main client script
-controls microphone stream"""
+controls microphone stream and audio generation"""
 
 # get python libraries
 import numpy as np
+from time import sleep
 import pyaudio
 import glob
 import random
@@ -10,17 +11,25 @@ import threading
 from queue import Queue
 from pydub import AudioSegment
 from pydub.playback import play
-from time import sleep
 
 
 class AudioEngine:
-    """controls listening plate and robot comms"""
+    """controls listening and audio mainpulation when called"""
     def __init__(self, ai_engine):
+        print('Audio engine is now working')
+
+        # define class params 4 audio listener
+        self.peak = 0
         self.running = True
-        self.connected = False
         self.logging = False
 
-        # set up mic listening func
+        # define the audio queue (not used at this point)
+        self.incoming_commands_queue = Queue()
+
+        # own the AI data server
+        self.aiEngine = ai_engine
+
+        # set up mic listening funcs
         self.CHUNK = 2 ** 11
         self.RATE = 44100
         self.p = pyaudio.PyAudio()
@@ -35,17 +44,6 @@ class AudioEngine:
                                'speed': 1,
                                'tempo': 0.1
                                }
-
-        # own the AI data server
-        self.aiEngine = ai_engine
-
-        print('Audio bot is now working')
-
-        # define class params 4 audio listener
-        self.peak = 0
-
-        # define the audio queue
-        self.incoming_commands_queue = Queue()
 
         # define class params 4 audio composer
         self.list_all_audio = glob.glob('data/audio/*.wav')
@@ -72,6 +70,7 @@ class AudioEngine:
 
     def snd_listen(self):
         print("mic listener: started!")
+        #todo - could implement director in here
         while self.running:
             data = np.frombuffer(self.stream.read(self.CHUNK,
                                                   exception_on_overflow = False),
@@ -101,42 +100,17 @@ class AudioEngine:
                 self.audio_comp()
                 # self.aiEngine.aiEmissionsQueue.clear()
 
-            # aiOutput = self.aiEngine.datadict['master_output']
-
-            # if aiOutput > 0.2:
-            #
-            #
-            #     #
-            #     #
-            #     # if self.peak > 4000:
-            #     #     if chance_make > 20: # 80% chance of playing if you activate me
-            #      = aiOutput
-
-            # if no audio detected then 50 % chance of self generatig a sound
+            # if no audio detected then 50 % chance of self generating a sound
             elif chance_make > 50:
                 print(f'{chance_make}   =  on my own')
                 # self.incoming_commands_queue = random.random()
                 self.audio_comp()
 
-            # pause to let other threads work
-            # sleep(0.01)
+            elif self.aiEngine.aiEmissionsQueue.qsize() == 0:
+                # have a bit of time off
+                rndSleep = random.randrange(2, 3)
+                sleep(rndSleep)
 
-    # def parseQueueueue(self):
-    #     while self.running:
-    #
-    #
-    #
-    #         if self.incoming_commands_queue.qsize() > 0:
-    #             input_str = inputQueue.get()
-    #             print("input_str = {}".format(input_str))
-    #
-    #             # write message to Toshiba
-    #             self.audio_comp()
-    #
-    #         # pause to let other threads work
-    #         sleep(0.01)
-
-            # sleep(0.1)
 
     # audio shaping and design
     def audio_comp(self):

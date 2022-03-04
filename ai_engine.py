@@ -1,12 +1,11 @@
 
 # --------------------------------------------------
 #
-# Embodied AI Engine Prototype v0.10
+# Embodied AI Engine Prototype v3
 #
-# © Craig Vear 2021
+# © Craig Vear 2022
 # cvear@dmu.ac.uk
 #
-# Dedicated to Fabrizio Poltronieri
 #
 # --------------------------------------------------
 
@@ -18,9 +17,6 @@ import numpy as np
 from random import random, getrandbits
 from time import sleep
 from queue import Queue
-
-# from soundbot import SoundBot
-
 
 # --------------------------------------------------
 #
@@ -79,15 +75,16 @@ class AffectMoveCONV2:
 """
 
 class AiDataEngine():
-    """speed = general tempo 0.5 ~ moderate fast, 1 ~ moderato; 2 ~ presto"""
+    """speed = general tempo 0.5 ~ slowish, 1 ~ medium; 2 ~ presto"""
     def __init__(self, speed=1):
         print('building engine server')
         self.interrupt_bang = False
-        # self.running = False
-        # self.PORT = 8000
-        # self.IP_ADDR = "127.0.0.1"
+
+        # state global tempos and initial vars
         self.global_speed = speed / 10
         self.rnd_stream = 0
+        self.rhythm_rate = 1
+        self.affect_listen = 0
 
         # make ai emissions queue
         self.aiEmissionsQueue = Queue()
@@ -120,12 +117,9 @@ class AiDataEngine():
                             'affect_net',
                             'self_awareness']
 
-        self.rhythm_rate = 1
-        self.affect_listen = 0
-
         # fill with random values
         self.dict_fill()
-        print(self.datadict)
+        print(f"Initialising the data dict with {self.datadict}")
 
         # instantiate nets as objects and make  models
         self.move_net = MoveRNN()
@@ -139,12 +133,6 @@ class AiDataEngine():
         self.master_logging = False
         self.streaming_logging = False
         self.affect_logging = False
-
-        # own the signal object for emission
-        # self.incoming_commands_queue = incoming_commands_queue
-
-        # # own the sound bot object and send harmony emitter
-        # self.soundbot = SoundBot(self.harmony_signal)
 
     """
     # --------------------------------------------------
@@ -305,10 +293,10 @@ class AiDataEngine():
 
                     # emit at various points in the affect cycle
                     # might make a sound emission
-                    # todo - add percentage here
-                    if getrandbits(1) == 1:
-                        # print('emmission bang A')
-                        self.emitter(affect_listen)
+                    # # todo - add percentage here
+                    # if getrandbits(1) == 1:
+                    #     # if % then make an emission - currently 50%
+                    #     self.emitter(affect_listen)
                     # else:
                         # print('no emmission bang A')
 
@@ -318,7 +306,7 @@ class AiDataEngine():
                         if self.affect_logging:
                             print('interrupt > HIGH !!!!!!!!!')
 
-                        # emit at various points in the affect cycle
+                        # if a big spike then emit
                         self.emitter(affect_listen)
 
                         # A - refill dict with random
@@ -362,15 +350,15 @@ class AiDataEngine():
                     # and wait for a cycle
                     sleep(self.rhythm_rate)
 
+    # emits a dict to the queue to be picked up by the audio engine
     def emitter(self, incoming_affect_listen):
+        # if the value changes
         if incoming_affect_listen != self.old_val:
 
+            # if the queue is empty then add a new one
             if self.aiEmissionsQueue.qsize() < 1:
                 self.aiEmissionsQueue.put(self.datadict)
                 print('//////////////////                   EMITTING and making sound')
-
-            # # make sound/ move robot?
-            # self.soundbot.make_sound(incoming_affect_listen, self.rhythm_rate)
 
         self.old_val = incoming_affect_listen
 
@@ -384,6 +372,7 @@ class AiDataEngine():
         # user change tempo of outputs and parsing
         self.rhythm_rate = got_dict['tempo']
 
+    # todo
     def quit(self):
         self.running = False
 
