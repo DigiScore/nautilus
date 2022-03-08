@@ -3,7 +3,7 @@ controls microphone stream and audio generation"""
 
 # get python libraries
 import numpy as np
-from time import sleep
+from time import sleep, time
 import pyaudio
 import glob
 import random
@@ -88,8 +88,11 @@ class AudioEngine:
         self.p.terminate()
 
     def audio_wrangler(self):
-        # am listening for sound level above a certain threshold
+        """listening for sound level above a certain threshold
+        & controlling all the director timing"""
+
         print("wrangler started")
+        self.nowTime = time()
         while self.running:
             chance_make = random.randrange(100)
             if self.aiEngine.aiEmissionsQueue.qsize() > 0:
@@ -138,8 +141,20 @@ class AudioEngine:
 
     # randomly generate playback speed 0.3-0.5
     def speed_change(self, sound, vol):
-        rnd_speed = random.randrange(5, 10)
-        speed = rnd_speed / 10
+        """determines transposition rate onto audio files"""
+
+        # which section are we in?
+        # this is end section (after 12 mins)
+        if time() >= self.nowTime + 720:
+            rndSpeed = random.randrange(20, 30)
+
+        elif time() >= self.nowTime + 300:
+            rndSpeed = 10
+
+        else:
+            rndSpeed = random.randrange(5, 10)
+
+        speed = rndSpeed / 10
         print('change of speed = ', speed)
         print('change of gain = ', vol)
         # Manually override the frame_rate. This tells the computer how many

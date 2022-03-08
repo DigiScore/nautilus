@@ -66,7 +66,7 @@ class ImageGen:
         Chordrest(Mm(self.staff_unit), staff, [note], Beat(int(duration), 4))
 
         # save as a png render
-        image_path = os.path.join(os.path.dirname(__file__), 'data/images',
+        image_path = os.path.join(os.path.dirname(__file__), '../data/images',
                                   f'nautilus-{time()}-{note}-{duration}.png')
 
         try:

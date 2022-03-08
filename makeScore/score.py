@@ -27,7 +27,7 @@ class ScoreDev():
         self.model = tf.keras.models.load_model('data/epochs4-long-model_ep4.h5',
                                            custom_objects=SeqSelfAttention.get_custom_objects())
 
-        with open("data/epochs4-long-tokenizer.p", "rb") as t:
+        with open("../data/epochs4-long-tokenizer.p", "rb") as t:
             self.note_tokenizer = pickle.load(t)
 
         # then generate midi files
@@ -83,7 +83,7 @@ class ScoreDev():
 
     # randomly generates the seed note from Carla's list of notes, to seed the NN process
     def carla_rnd(self):
-        with open('data/carlaDNA-v9.csv', newline='') as csvfile:
+        with open('../data/carlaDNA-v9.csv', newline='') as csvfile:
             data = list(csv.reader(csvfile))
             length = len(data)
             rnd = random.randrange(length)
