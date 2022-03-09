@@ -74,16 +74,15 @@ class AudioEngine:
 
     def snd_listen(self):
         print("mic listener: started!")
-        #todo - could implement director in here
         while self.running:
             data = np.frombuffer(self.stream.read(self.CHUNK,
                                                   exception_on_overflow = False),
                                  dtype=np.int16)
-            peak = np.average(np.abs(data)) * 2
-            if peak > 2000:
-                bars = "#" * int(50 * peak / 2 ** 16)
-                print("%05d %s" % (peak, bars))
-            self.send_data_dict['mic_level'] = peak # / 30000
+            self.peak = np.average(np.abs(data)) * 2
+            if self.peak > 2000:
+                bars = "#" * int(50 * self.peak / 2 ** 16)
+                print("%05d %s" % (self.peak, bars))
+            self.send_data_dict['mic_level'] = self.peak # / 30000
             self.aiEngine.parse_got_dict(self.send_data_dict)
 
     def terminate(self):
@@ -96,7 +95,7 @@ class AudioEngine:
         & controlling all the director timing"""
 
         print("wrangler started")
-        self.nowTime = time()
+        # self.nowTime = time()
         while self.running:
             chance_make = random.randrange(100)
             if self.aiEngine.aiEmissionsQueue.qsize() > 0:
@@ -132,8 +131,8 @@ class AudioEngine:
         print('sound file = ', sound_file)
         sound = AudioSegment.from_wav(sound_file)
 
-        # gain structure?
-        if self.aiDirector.self.triggerEndFade:
+        # gain structure for end fade
+        if self.aiDirector.globalForm == 6:
             self.gain -= 0.01
 
         # play (sound)
@@ -149,10 +148,10 @@ class AudioEngine:
 
         # which section are we in?
         # this is end section (after 12 mins)
-        if time() >= self.nowTime + 720:
+        if self.aiDirector.globalForm > 6:
             rndSpeed = random.randrange(20, 30)
 
-        elif time() >= self.nowTime + 300:
+        elif self.aiDirector.globalForm > 4:
             rndSpeed = 10
 
         else:
@@ -175,4 +174,4 @@ class AudioEngine:
 
 
 if __name__ == '__main__':
-    audio_test = Audio_engine()
+    audio_test = AudioEngine()

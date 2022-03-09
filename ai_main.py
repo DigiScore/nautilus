@@ -14,42 +14,66 @@ class Director:
     def __init__(self):
         # logs start time in seconds
         startTime = time()
+        self.globalForm = 1
 
-        # transition into B section starts at 6 mins
+        # todo - should all this be wrapped into a DICT?
+        # 2) transition into B section starts at 6 mins
         # triggered by density clouds of short attacks from Carla
         self.transA = startTime + 360
 
-        # section B must start at 8 mins
+        # 3) section B must start at 8 mins
         self.sectionB = startTime + 480
 
-        # transition into C section starts after 30"
+        # 4) transition into C section starts after 30"
         # trans triggered by low C held note
         self.transC = self.sectionB + 30
 
-        # section C must start by 11 mins
+        # 5) section C must start by 11 mins
         self.sectionC = startTime + 660
+        # self.pitchChange = "low"
 
-        # end section (ascension) must start at 14 mins
+        # 6) end section (ascension) must start at 14 mins
         self.endSection = startTime + 840
-        self.triggerEndFade = False
+        # self.triggerEndFade = False
 
-        # piece ends at 16 mins
+        # 7) piece ends at 16 mins
         self.end = startTime + 960
 
     def conductor(self):
         """controls the overall behaviour and timing"""
-        pass
 
+        # determime which section we are in
         # get now time
         nowTime = time()
 
         # are we at the end of the piece?
         if nowTime >= self.end:
-            sys.exit()
+            self.globalForm = 7
+            print("\t\t\t\tFinsihed")
 
-        # have we started the
+        # last section (ascension)
         elif nowTime >= self.endSection:
-            self.triggerEndFade = True
+            # self.triggerEndFade = True
+            self.globalForm = 6
+            print("\t\t\t\tAscension")
+
+        elif nowTime >= self.sectionC:
+            # self.pitchChange = "high"
+            self.globalForm = 5
+            print("\t\t\t\tSection C")
+
+        elif nowTime >= self.transC:
+            # self.pitchChange = "norm"
+            self.globalForm = 4
+            print("\t\t\t\tTransition to Section C")
+
+        elif nowTime >= self.sectionB:
+            self.globalForm = 3
+            print("\t\t\t\tSection B")
+
+        elif nowTime >= self.transA:
+            self.globalForm = 2
+            print("\t\t\t\tTransition to Section B")
 
 
 class Main:
@@ -72,7 +96,7 @@ class Main:
         t3 = Thread(target=audioEngine.snd_listen)
 
         # starts the conductor
-        t4 = Timer(interval=0.1, function=aiDirector.conductor)
+        t4 = Timer(interval= 1, function=aiDirector.conductor)
 
         # assigns them all daemons
         t1.daemon = True
