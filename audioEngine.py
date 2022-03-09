@@ -15,7 +15,7 @@ from pydub.playback import play
 
 class AudioEngine:
     """controls listening and audio mainpulation when called"""
-    def __init__(self, ai_engine):
+    def __init__(self, ai_engine, aiDirector):
         print('Audio engine is now working')
 
         # define class params 4 audio listener
@@ -28,6 +28,9 @@ class AudioEngine:
 
         # own the AI data server
         self.aiEngine = ai_engine
+
+        # own the dircetor object
+        self.aiDirector = aiDirector
 
         # set up mic listening funcs
         self.CHUNK = 2 ** 11
@@ -51,6 +54,7 @@ class AudioEngine:
         seed_rnd = random.randrange(self.num)
         random.seed(seed_rnd)
         random.shuffle(self.list_all_audio)
+        self.gain = 1
 
         # # own the ai engine
         # self.aiEngine = aiEngine
@@ -129,11 +133,11 @@ class AudioEngine:
         sound = AudioSegment.from_wav(sound_file)
 
         # gain structure?
-        gain_rnd = random.randrange(1)
-        gain = 1  # gain_rnd + 0.5
+        if self.aiDirector.self.triggerEndFade:
+            self.gain -= 0.01
 
         # play (sound)
-        new_sound = self.speed_change(sound, gain)
+        new_sound = self.speed_change(sound, self.gain)
         length = new_sound.duration_seconds
         print('length = ', length)
         fade_sound = new_sound.fade_in(1000).fade_out(500)
