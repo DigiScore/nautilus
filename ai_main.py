@@ -1,7 +1,7 @@
 # import python libs
 import sys
 from threading import Thread, Timer
-from queue import Queue
+from random import randrange
 from time import time
 
 # import project libs
@@ -14,22 +14,26 @@ class Director:
     def __init__(self):
         # logs start time in seconds
         startTime = time()
+
+        # todo - this is a wizard-of-oz HACK
+        # todo - need to implement the 2 audio analysis transistions
+
+        # 1) global form starts at 1
         self.globalForm = 1
 
-        # todo - should all this be wrapped into a DICT?
         # 2) transition into B section starts at 6 mins
         # triggered by density clouds of short attacks from Carla
         self.transA = startTime + 360
 
-        # 3) section B must start at 8 mins
-        self.sectionB = startTime + 480
+        # 3) section B must start before 8 mins or when triggered by Carla
+        self.sectionB = self.transA + randrange(20, 60) # startTime + 480
 
         # 4) transition into C section starts after 30"
         # trans triggered by low C held note
         self.transC = self.sectionB + 30
 
         # 5) section C must start by 11 mins
-        self.sectionC = startTime + 660
+        self.sectionC = self.transC + randrange(30, 150) # startTime + 660
         # self.pitchChange = "low"
 
         # 6) end section (ascension) must start at 14 mins

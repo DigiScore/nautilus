@@ -56,34 +56,40 @@ class AudioEngine:
         random.shuffle(self.list_all_audio)
         self.gain = 1
 
-        # # own the ai engine
-        # self.aiEngine = aiEngine
-
         # start listener thread
         print('Audio threading started')
-        # th1 = threading.Thread(target=self.parseQueueueue)
 
         # start the composition thread
-        th2 = threading.Timer(interval=0.1, function=self.audio_wrangler)
+        th1 = threading.Timer(interval=0.1, function=self.audio_wrangler)
 
-        # th1.start()
-        th2.start()
-        #
-        # # init got dict
-        # self.got_dict = self.engine.datadict
+        # start timer thread
+        th1.start()
+
 
     def snd_listen(self):
         print("mic listener: started!")
+        oldbarcount = 0
+
+        # loop starts here
         while self.running:
+
+            #set up listening stream
             data = np.frombuffer(self.stream.read(self.CHUNK,
                                                   exception_on_overflow = False),
                                  dtype=np.int16)
             self.peak = np.average(np.abs(data)) * 2
+
+            # do stuff with this data
             if self.peak > 2000:
                 bars = "#" * int(50 * self.peak / 2 ** 16)
                 print("%05d %s" % (self.peak, bars))
+
+            # share the data
             self.send_data_dict['mic_level'] = self.peak # / 30000
             self.aiEngine.parse_got_dict(self.send_data_dict)
+
+            # todo - realtime analysis of live audio
+            # how many spikes per section?
 
     def terminate(self):
         self.stream.stop_stream()
@@ -95,8 +101,9 @@ class AudioEngine:
         & controlling all the director timing"""
 
         print("wrangler started")
-        # self.nowTime = time()
+
         while self.running:
+            """part 1 - respond as sound"""
             chance_make = random.randrange(100)
             if self.aiEngine.aiEmissionsQueue.qsize() > 0:
                 print('react to sound')
@@ -117,6 +124,19 @@ class AudioEngine:
                 rndSleep = random.randrange(2, 3)
                 sleep(rndSleep)
 
+            # """part 2 - listen to behaviour for triggering"""
+            # # transition to section B = short dense events
+            # if self.aiDirector.globalForm == 2:
+            #     # is Carla giving us the Q?
+            #     # short dense sounds
+            #     # if self.peak >
+            #     # todo - temporary fix
+
+
+    def randomTime(self):
+        nowTime = time()
+        rndDuration = random.randrange(20, 120)
+        return nowTime+rndDuration
 
     # audio shaping and design
     def audio_comp(self):
@@ -133,7 +153,8 @@ class AudioEngine:
 
         # gain structure for end fade
         if self.aiDirector.globalForm == 6:
-            self.gain -= 0.01
+            # reduce the gain by 0.0083 every second for 120 secs
+            self.gain -= 0.0083
 
         # play (sound)
         new_sound = self.speed_change(sound, self.gain)
@@ -146,14 +167,20 @@ class AudioEngine:
     def speed_change(self, sound, vol):
         """determines transposition rate onto audio files"""
 
-        # which section are we in?
-        # this is end section (after 12 mins)
-        if self.aiDirector.globalForm > 6:
+        # determines pitch shift behaviours on global form
+        # high pitch for "ascension" section 5 & 6
+        if self.aiDirector.globalForm >= 5:
             rndSpeed = random.randrange(20, 30)
 
-        elif self.aiDirector.globalForm > 4:
-            rndSpeed = 10
+        # normal pitch for section 5 (C)
+        elif self.aiDirector.globalForm >= 4:
+            rndSpeed = random.randrange(10)
 
+        # big range for transition into particle zone (transB)
+        elif self.aiDirector.globalForm == 2:
+            rndSpeed = random.randrange(5, 40)
+
+        # section A
         else:
             rndSpeed = random.randrange(5, 10)
 
