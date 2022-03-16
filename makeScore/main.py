@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
 
 # import project modules
 from score import ScoreDev
-from audioEngine import Audio_engine
+# from ../audioEngine import Audio_engine
 
 
 class MainApplication(QWidget):
@@ -42,7 +42,7 @@ class MainApplication(QWidget):
         score = ScoreDev()
 
         # start the audio listener thread
-        self.audiobot = Audio_engine()
+        # self.audiobot = Audio_engine()
 
         # UI setup and off we go
         self.title = 'Nautilus'

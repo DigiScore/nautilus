@@ -3,6 +3,7 @@ import sys
 from threading import Thread, Timer
 from random import randrange
 from time import time
+import keyboard
 
 # import project libs
 from audioEngine import AudioEngine
@@ -79,6 +80,52 @@ class Director:
             self.globalForm = 2
             print("\t\t\t\tTransition to Section B")
 
+    def keyboardControl(self):
+        # determime which section we are in
+        # get now time
+        nowTime = time()
+
+        # move into section 2 automatically
+        if nowTime == self.transA:
+            self.globalForm = 2
+            print("\t\t\t\tTransition to Section B")
+
+        # wait for a #2 to be pressed for end of trans A
+        if self.globalForm == 2:
+            if keyboard.is_pressed("space"):
+                print("moving to section B")
+                self.globalForm = 3
+                print("\t\t\t\tSection B")
+
+                # reset the timer
+                sectionBStarTime = time()
+
+        # move auto into trans2
+        if self.globalForm == 3:
+            if time() == sectionBStarTime + 30:
+                self.globalForm = 4
+                print("\t\t\t\tTransition to Section C")
+
+        if self.globalForm == 4:
+            if keyboard.is_pressed("space"):
+                # self.pitchChange = "high"
+                self.globalForm = 5
+                print("\t\t\t\tSection C")
+
+                # end points are 4 and 6 mins after this press
+                endStartPoint = time() + 240
+                endEnd = time() + 360
+
+        # check if end section
+        if self.globalForm == 5:
+
+            if time() >= endEnd:
+                self.globalForm = 7
+                print("\t\t\t\tFinsihed")
+
+            elif time() >= endStartPoint:
+                self.globalForm = 6
+                print("\t\t\t\tAscension")
 
 class Main:
     """start all the data threading
@@ -94,13 +141,16 @@ class Main:
         # instantiate the controller client and pass it te queue
         audioEngine = AudioEngine(engine, aiDirector)
 
+        # wait to go
+        _empty = input('ready to go ("1")?')
+
         # declares all threads and starts the piece
         t1 = Thread(target=engine.make_data)
         t2 = Thread(target=engine.affect)
         t3 = Thread(target=audioEngine.snd_listen)
 
         # starts the conductor
-        t4 = Timer(interval= 1, function=aiDirector.conductor)
+        t4 = Timer(interval= 1, function=aiDirector.keyboardControl)
 
         # assigns them all daemons
         t1.daemon = True

@@ -32,7 +32,10 @@ class ImageGen:
 
         # generate a staff in the container
         # staff = Staff((Mm(0), Mm(0)), Mm(100), flow)
-        staff = Staff((Mm(0), Mm(0)), Mm(manuscript_width), flow, Mm(1))
+
+        pen = Pen(thickness=Mm(0.2),
+                  color=(255, 255, 255))
+        staff = Staff((Mm(0), Mm(0)), Mm(manuscript_width), flow, Mm(1), pen=pen)
 
         # populate it with music furniture
         InvisibleClef(staff, Mm(0), 'treble')
