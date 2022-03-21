@@ -1,9 +1,12 @@
 # import python libs
+import concurrent.futures
 import sys
 from threading import Thread, Timer
 from random import randrange
-from time import time
-import keyboard
+from time import time, sleep
+from concurrent import futures
+from pynput.keyboard import Key, Listener
+from pynput import keyboard
 
 # import project libs
 from audioEngine import AudioEngine
@@ -15,6 +18,8 @@ class Director:
     def __init__(self):
         # logs start time in seconds
         startTime = time()
+
+        self.waitForSpaceFlag = True
 
         # todo - this is a wizard-of-oz HACK
         # todo - need to implement the 2 audio analysis transistions
@@ -44,6 +49,13 @@ class Director:
         # 7) piece ends at 16 mins
         self.end = startTime + 960
 
+        # # start keyboard listening thread
+        # with Listener(on_press=self.getKey) as listener:
+        #     listener.join()
+
+    def getKey(self):
+        self.waitForSpaceFlag = False
+
     def conductor(self):
         """controls the overall behaviour and timing"""
 
@@ -54,95 +66,103 @@ class Director:
         # are we at the end of the piece?
         if nowTime >= self.end:
             self.globalForm = 7
-            print("\t\t\t\tFinsihed")
+            print("================\t\t\t\tFinsihed")
 
         # last section (ascension)
         elif nowTime >= self.endSection:
             # self.triggerEndFade = True
             self.globalForm = 6
-            print("\t\t\t\tAscension")
+            print("================\t\t\t\tAscension")
 
         elif nowTime >= self.sectionC:
             # self.pitchChange = "high"
             self.globalForm = 5
-            print("\t\t\t\tSection C")
+            print("================\t\t\t\tSection C")
 
         elif nowTime >= self.transC:
             # self.pitchChange = "norm"
             self.globalForm = 4
-            print("\t\t\t\tTransition to Section C")
+            print("================\t\t\t\tTransition to Section C")
 
         elif nowTime >= self.sectionB:
             self.globalForm = 3
-            print("\t\t\t\tSection B")
+            print("================\t\t\t\tSection B")
 
         elif nowTime >= self.transA:
             self.globalForm = 2
-            print("\t\t\t\tTransition to Section B")
+            print("================\t\t\t\tTransition to Section B")
 
     def keyboardControl(self):
         # determime which section we are in
         # get now time
-        nowTime = time()
+        while True:
+            nowTime = time()
 
-        # move into section 2 automatically
-        if nowTime == self.transA:
-            self.globalForm = 2
-            print("\t\t\t\tTransition to Section B")
+            # check if end section
+            if self.globalForm >= 5:
 
-        # wait for a #2 to be pressed for end of trans A
-        if self.globalForm == 2:
-            if keyboard.is_pressed("space"):
-                print("moving to section B")
-                self.globalForm = 3
-                print("\t\t\t\tSection B")
+                if time() >= endEnd:
+                    self.globalForm = 7
+                    print("================\t\t\t\tFinsihed")
 
-                # reset the timer
-                sectionBStarTime = time()
+                elif time() >= endStartPoint:
+                    self.globalForm = 6
+                    print("================\t\t\t\tAscension")
 
-        # move auto into trans2
-        if self.globalForm == 3:
-            if time() == sectionBStarTime + 30:
-                self.globalForm = 4
-                print("\t\t\t\tTransition to Section C")
+            elif self.globalForm >= 4:
+                if not self.waitForSpaceFlag:
+                # if keyboard.is_pressed('space'):
+                    # self.pitchChange = "high"
+                    self.globalForm = 5
+                    print("================\t\t\t\tSection C")
 
-        if self.globalForm == 4:
-            if keyboard.is_pressed("space"):
-                # self.pitchChange = "high"
-                self.globalForm = 5
-                print("\t\t\t\tSection C")
+                    # end points are 4 and 6 mins after this press
+                    endStartPoint = time() + 240
+                    endEnd = time() + 360
+                    self.waitForSpaceFlag = True
 
-                # end points are 4 and 6 mins after this press
-                endStartPoint = time() + 240
-                endEnd = time() + 360
+            # move auto into trans2
+            elif self.globalForm >= 3:
+                if time() >= sectionBStarTime + 3:
+                    self.globalForm = 4
+                    print("================\t\t\t\tTransition to Section C")
 
-        # check if end section
-        if self.globalForm == 5:
+            # wait for a #2 to be pressed for end of trans A
+            elif self.globalForm >= 2:
+                if self.waitForSpaceFlag == False:
+                    # if keyboard.is_pressed('space'):
+                    print("moving to section B")
+                    self.globalForm = 3
+                    print("================\t\t\t\tSection B")
 
-            if time() >= endEnd:
-                self.globalForm = 7
-                print("\t\t\t\tFinsihed")
+                    # reset the timer
+                    sectionBStarTime = time()
+                    self.waitForSpaceFlag = True
 
-            elif time() >= endStartPoint:
-                self.globalForm = 6
-                print("\t\t\t\tAscension")
+            # move into section 2 automatically
+            elif nowTime >= self.transA:
+                self.globalForm = 2
+                print("================\t\t\t\tTransition to Section B")
+
+            print(f'global form is currently {self.globalForm}')
+            self.waitForSpaceFlag = True
+            sleep(1)
 
 class Main:
-    """start all the data threading
-     pass it the master signal class for emmission"""
+    """start all the data threading"""
 
     def __init__(self):
         # instantiate the AI server
         engine = AiDataEngine(speed=0.1)
 
-        # instantiate the dircetor
-        aiDirector = Director()
-
-        # instantiate the controller client and pass it te queue
-        audioEngine = AudioEngine(engine, aiDirector)
-
         # wait to go
         _empty = input('ready to go ("1")?')
+
+        # instantiate the dircetor
+        self.aiDirector = Director()
+
+        # instantiate the controller client and pass it te queue
+        audioEngine = AudioEngine(engine, self.aiDirector)
 
         # declares all threads and starts the piece
         t1 = Thread(target=engine.make_data)
@@ -150,7 +170,7 @@ class Main:
         t3 = Thread(target=audioEngine.snd_listen)
 
         # starts the conductor
-        t4 = Timer(interval= 1, function=aiDirector.keyboardControl)
+        t4 = Thread(target=self.aiDirector.keyboardControl)
 
         # assigns them all daemons
         t1.daemon = True
@@ -162,6 +182,14 @@ class Main:
         t2.start()
         t3.start()
         t4.start()
+
+        # start keyboard listening thread
+        with Listener(on_press=self.getKey) as listener:
+            listener.join()
+
+    def getKey(self, key):
+        print("changing flag", key)
+        self.aiDirector.waitForSpaceFlag = False
 
 
 if __name__ == "__main__":

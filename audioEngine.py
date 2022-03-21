@@ -54,7 +54,7 @@ class AudioEngine:
         seed_rnd = random.randrange(self.num)
         random.seed(seed_rnd)
         random.shuffle(self.list_all_audio)
-        self.gain = 1
+        self.gain = 0
 
         # start listener thread
         print('Audio threading started')
@@ -80,9 +80,9 @@ class AudioEngine:
             self.peak = np.average(np.abs(data)) * 2
 
             # do stuff with this data
-            if self.peak > 2000:
-                bars = "#" * int(50 * self.peak / 2 ** 16)
-                print("%05d %s" % (self.peak, bars))
+            # if self.peak > 2000:
+            #     bars = "#" * int(50 * self.peak / 2 ** 16)
+            #     print("%05d %s" % (self.peak, bars))
 
             # share the data
             self.send_data_dict['mic_level'] = self.peak # / 30000
@@ -109,7 +109,7 @@ class AudioEngine:
                 print('react to sound')
                 # self.incoming_commands_queue.put(1)
                 _getSomething = self.aiEngine.aiEmissionsQueue.get()
-                print("test", _getSomething)
+                # print("test", _getSomething)
                 self.audio_comp()
                 # self.aiEngine.aiEmissionsQueue.clear()
 
@@ -140,8 +140,9 @@ class AudioEngine:
 
     # audio shaping and design
     def audio_comp(self):
-        snd = self.random_design()
-        play(snd)
+        if self.aiDirector.globalForm < 7:
+            snd = self.random_design()
+            play(snd)
 
     # adds random gen params to audio object
     def random_design(self):
@@ -152,9 +153,9 @@ class AudioEngine:
         sound = AudioSegment.from_wav(sound_file)
 
         # gain structure for end fade
-        if self.aiDirector.globalForm == 6:
+        if self.aiDirector.globalForm >= 6:
             # reduce the gain by 0.0083 every second for 120 secs
-            self.gain -= 0.0083
+            self.gain -= 0.5
 
         # play (sound)
         new_sound = self.speed_change(sound, self.gain)
@@ -185,6 +186,8 @@ class AudioEngine:
             rndSpeed = random.randrange(5, 10)
 
         speed = rndSpeed / 10
+        if speed == 0:
+            speed = 1
         print('change of speed = ', speed)
         print('change of gain = ', vol)
         # Manually override the frame_rate. This tells the computer how many
