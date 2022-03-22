@@ -114,7 +114,7 @@ class AudioEngine:
                 # self.aiEngine.aiEmissionsQueue.clear()
 
             # if no audio detected then 50 % chance of self generating a sound
-            elif chance_make > 50:
+            elif chance_make > 20:
                 print(f'{chance_make}   =  on my own')
                 # self.incoming_commands_queue = random.random()
                 self.audio_comp()
@@ -173,13 +173,13 @@ class AudioEngine:
         if self.aiDirector.globalForm >= 5:
             rndSpeed = random.randrange(20, 30)
 
-        # normal pitch for section 5 (C)
+        # normal pitch for section 4 (zone C upside down world)
         elif self.aiDirector.globalForm >= 4:
             rndSpeed = random.randrange(10)
 
-        # big range for transition into particle zone (transB)
-        elif self.aiDirector.globalForm == 2:
-            rndSpeed = random.randrange(5, 40)
+        # big range for transition into particle zone
+        elif self.aiDirector.globalForm >= 2:
+            rndSpeed = random.randrange(20, 100)
 
         # section A
         else:
