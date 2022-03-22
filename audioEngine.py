@@ -114,7 +114,7 @@ class AudioEngine:
                 # self.aiEngine.aiEmissionsQueue.clear()
 
             # if no audio detected then 50 % chance of self generating a sound
-            elif chance_make > 20:
+            elif chance_make > 36:
                 print(f'{chance_make}   =  on my own')
                 # self.incoming_commands_queue = random.random()
                 self.audio_comp()
@@ -142,6 +142,11 @@ class AudioEngine:
     def audio_comp(self):
         if self.aiDirector.globalForm < 7:
             snd = self.random_design()
+
+            # reverse for upside down world only
+            if self.aiDirector.globalForm == 5:
+                snd = snd.reverse()
+
             play(snd)
 
     # adds random gen params to audio object
@@ -155,13 +160,13 @@ class AudioEngine:
         # gain structure for end fade
         if self.aiDirector.globalForm >= 6:
             # reduce the gain by 0.0083 every second for 120 secs
-            self.gain -= 0.5
+            self.gain -= 0.55
 
         # play (sound)
         new_sound = self.speed_change(sound, self.gain)
         length = new_sound.duration_seconds
         print('length = ', length)
-        fade_sound = new_sound.fade_in(1000).fade_out(500)
+        fade_sound = new_sound.fade_in(5).fade_out(5)
         return fade_sound
 
     # randomly generate playback speed 0.3-0.5
@@ -169,17 +174,21 @@ class AudioEngine:
         """determines transposition rate onto audio files"""
 
         # determines pitch shift behaviours on global form
-        # high pitch for "ascension" section 5 & 6
-        if self.aiDirector.globalForm >= 5:
-            rndSpeed = random.randrange(20, 30)
+        # high pitch for ascension
+        if self.aiDirector.globalForm >= 6:
+            rndSpeed = random.randrange(20, 40)
 
-        # normal pitch for section 4 (zone C upside down world)
+        # normal pitch for section 5
+        # (zone C upside down world)
+        elif self.aiDirector.globalForm >= 5:
+            rndSpeed = 10
+
         elif self.aiDirector.globalForm >= 4:
-            rndSpeed = random.randrange(10)
+            rndSpeed = random.randrange(10, 40)
 
         # big range for transition into particle zone
         elif self.aiDirector.globalForm >= 2:
-            rndSpeed = random.randrange(20, 100)
+            rndSpeed = random.randrange(30, 45)
 
         # section A
         else:
