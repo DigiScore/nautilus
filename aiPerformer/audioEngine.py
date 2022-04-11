@@ -164,10 +164,10 @@ class AudioEngine:
 
         # play (sound)
         new_sound = self.speed_change(sound, self.gain)
-        length = new_sound.duration_seconds
-        print('length = ', length)
-        fade_sound = new_sound.fade_in(5).fade_out(5)
-        return fade_sound
+        # length = new_sound.duration_seconds
+        # print('length = ', length)
+        # fade_sound = new_sound.fade_in(5).fade_out(5)
+        return new_sound
 
     # randomly generate playback speed 0.3-0.5
     def speed_change(self, sound, vol):
